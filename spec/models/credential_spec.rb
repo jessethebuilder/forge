@@ -7,8 +7,6 @@ describe Credential, type: :model do
     it{ should validate_presence_of :username }
     it{ should validate_uniqueness_of :username }
 
-    it{ should validate_presence_of :token }
-
     specify{ association_must_exist(@credential, :account) }
   end # Validations
 
@@ -20,6 +18,11 @@ describe Credential, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
+    it 'should generate a token on creation' do
+      @credential.token = nil
+      @credential.save!
+      @credential.token.should_not == nil
+    end
   end # Behaviors
 
   describe 'Methods' do

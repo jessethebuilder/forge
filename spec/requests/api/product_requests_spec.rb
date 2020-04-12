@@ -1,17 +1,16 @@
 describe ProductsController, type: :request, api: true do
   before do
     @account = create(:account)
-    # This mock should be replaced with some kind of actual login eventually.
-    allow_any_instance_of(ApplicationController).to receive(:current_account).and_return(@account)
+    @credential = create(:credential, account: @account)
+
     @menu = create(:menu)
     @group = create(:group)
     @product = create(:product, account: @account, menu: @menu, group: @group)
-    @headers = {'ACCEPT' => 'application/json'}
   end
 
   describe 'GET /products' do
     it 'should return an array of Products' do
-      get '/products.json', headers: @headers
+      get '/products.json', headers: api_headers
       response.body.should == [
         {
           id: @product.to_param,
@@ -33,7 +32,7 @@ describe ProductsController, type: :request, api: true do
     it 'it SHOULD NOT return other accounts Products' do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
-      get '/products.json', headers: @headers
+      get '/products.json', headers: api_headers
       response_data = JSON.parse(response.body)
       response_data.count.should == 1
       response_data.first['id'].should == @product.to_param
@@ -49,7 +48,7 @@ describe ProductsController, type: :request, api: true do
         data: {hello: 'world'},
       )
 
-      get "/products/#{@product.to_param}.json", headers: @headers
+      get "/products/#{@product.to_param}.json", headers: api_headers
 
       response.body.should == {
         id: @product.to_param,
@@ -71,7 +70,7 @@ describe ProductsController, type: :request, api: true do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
 
-      get "/products/#{new_product.to_param}.json", headers: @headers
+      get "/products/#{new_product.to_param}.json", headers: api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Product')
       }.to_json
@@ -86,12 +85,12 @@ describe ProductsController, type: :request, api: true do
     end
 
     it 'should create a Product' do
-      expect{ post '/products.json', params: @create_params, headers: @headers }
+      expect{ post '/products.json', params: @create_params, headers: api_headers }
             .to change{ Product.count }.by(1)
     end
 
     it 'should return Product data' do
-      post '/products.json', params: @create_params, headers: @headers
+      post '/products.json', params: @create_params, headers: api_headers
       created_product = Product.last
 
       response.body.should == {
@@ -111,7 +110,7 @@ describe ProductsController, type: :request, api: true do
     end
 
     it 'should set @product.account to @account' do
-      post '/products.json', params: @create_params, headers: @headers
+      post '/products.json', params: @create_params, headers: api_headers
       Product.last.account.should == @account
     end
 
@@ -122,7 +121,7 @@ describe ProductsController, type: :request, api: true do
       end
 
       it 'should return an error' do
-        post '/products.json', params: @create_params, headers: @headers
+        post '/products.json', params: @create_params, headers: api_headers
         response.body.should == {
           price: [
             "can't be blank",
@@ -132,7 +131,7 @@ describe ProductsController, type: :request, api: true do
       end
 
       it 'should return code ' do
-        post '/products.json', params: @create_params, headers: @headers
+        post '/products.json', params: @create_params, headers: api_headers
         response.status.should == 422
       end
     end
@@ -151,7 +150,7 @@ describe ProductsController, type: :request, api: true do
       expect{
         put "/products/#{@product.to_param}.json",
             params: @update_params,
-            headers: @headers
+            headers: api_headers
        }.to change{ @product.reload.price }
         .to(@update_params[:product][:price])
     end
@@ -159,7 +158,7 @@ describe ProductsController, type: :request, api: true do
     it 'should return Product data' do
       put "/products/#{@product.to_param}.json",
           params: @update_params,
-          headers: @headers
+          headers: api_headers
 
       response.body.should == {
         id: @product.reload.to_param,
@@ -180,7 +179,7 @@ describe ProductsController, type: :request, api: true do
     it 'should return code ' do
       put "/products/#{@product.to_param}.json",
           params: @update_params,
-          headers: @headers
+          headers: api_headers
       response.status.should == 200
     end
 
@@ -190,7 +189,7 @@ describe ProductsController, type: :request, api: true do
 
       put "/products/#{new_product.to_param}.json",
           params: @update_params,
-          headers: @headers
+          headers: api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Product')
       }.to_json
@@ -205,7 +204,7 @@ describe ProductsController, type: :request, api: true do
       end
 
       it 'should return an error' do
-        post '/products.json', params: @update_params
+        post '/products.json', params: @update_params, headers: api_headers
         response.body.should == {
           price: [
             "can't be blank",
@@ -215,7 +214,7 @@ describe ProductsController, type: :request, api: true do
       end
 
       it 'should return code 422' do
-        post '/products.json', params: @update_params
+        post '/products.json', params: @update_params, headers: api_headers
         response.status.should == 422
       end
     end
@@ -223,13 +222,13 @@ describe ProductsController, type: :request, api: true do
 
   describe 'DELETE /products/:id' do
     it 'should destroy a Product' do
-      expect{ delete "/products/#{@product.to_param}.json" }
+      expect{ delete "/products/#{@product.to_param}.json", headers: api_headers }
             .to change{ Product.count }.by(-1)
       Product.find_by(id: @product.id).should == nil
     end
 
     it 'should return a code' do
-      delete "/products/#{@product.to_param}.json"
+      delete "/products/#{@product.to_param}.json", headers: api_headers
       response.status.should == 204
     end
 
@@ -237,7 +236,7 @@ describe ProductsController, type: :request, api: true do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
 
-      delete "/products/#{new_product.to_param}.json"
+      delete "/products/#{new_product.to_param}.json", headers: api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Product')
       }.to_json

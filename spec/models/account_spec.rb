@@ -12,6 +12,7 @@ describe Account, type: :model do
     it{ should have_many :groups }
     it{ should have_many :orders }
     it{ should have_many :customers }
+    it{ should have_many :credentials }
   end # Associations
 
   describe 'Attributes' do

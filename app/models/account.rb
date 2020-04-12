@@ -4,4 +4,5 @@ class Account < ApplicationRecord
   has_many :groups
   has_many :orders
   has_many :customers
+  has_many :credentials 
 end
