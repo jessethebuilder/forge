@@ -4,8 +4,6 @@ class CreateOrderItems < ActiveRecord::Migration[6.0]
       t.float :amount
       t.jsonb :data, default: {}
       t.string :note
-      t.references :orders, null: false, foreign_key: true
-      t.references :products, null: false, foreign_key: true
 
       t.timestamps
     end

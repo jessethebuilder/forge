@@ -1,7 +1,6 @@
-json.id menu.to_param
-
 json.extract!(
   menu,
+  :id,
   :name,
   :description,
   :data,

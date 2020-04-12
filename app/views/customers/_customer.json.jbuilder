@@ -1,7 +1,6 @@
-json.id customer.to_param
-
 json.extract!(
   customer,
+  :id,
   :email,
   :name,
   :phone,

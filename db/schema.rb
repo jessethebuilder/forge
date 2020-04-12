@@ -37,7 +37,6 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
     t.string "phone"
     t.string "reference"
     t.jsonb "data", default: {}
-    t.boolean "active", default: true
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -75,20 +74,17 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
     t.float "amount"
     t.jsonb "data", default: {}
     t.string "note"
-    t.bigint "orders_id", null: false
-    t.bigint "products_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "order_id"
     t.bigint "product_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
-    t.index ["orders_id"], name: "index_order_items_on_orders_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
-    t.index ["products_id"], name: "index_order_items_on_products_id"
   end
 
   create_table "orders", force: :cascade do |t|
     t.jsonb "data", default: {}
+    t.string "reference"
     t.string "note"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -124,9 +120,7 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
   add_foreign_key "groups", "menus"
   add_foreign_key "menus", "accounts"
   add_foreign_key "order_items", "orders"
-  add_foreign_key "order_items", "orders", column: "orders_id"
   add_foreign_key "order_items", "products"
-  add_foreign_key "order_items", "products", column: "products_id"
   add_foreign_key "orders", "accounts"
   add_foreign_key "orders", "customers"
   add_foreign_key "orders", "menus"

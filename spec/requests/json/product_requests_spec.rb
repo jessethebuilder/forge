@@ -13,7 +13,7 @@ describe ProductsController, type: :request, api: true do
       get '/products.json', headers: test_api_headers
       response.body.should == [
         {
-          id: @product.to_param,
+          id: @product.id,
           name: nil,
           description: nil,
           order: nil,
@@ -23,8 +23,8 @@ describe ProductsController, type: :request, api: true do
           active: true,
           created_at: @product.created_at,
           updated_at: @product.updated_at,
-          menu_id: @menu.to_param,
-          group_id: @group.to_param
+          menu_id: @menu.id,
+          group_id: @group.id
         }
       ].to_json
     end
@@ -35,7 +35,7 @@ describe ProductsController, type: :request, api: true do
       get '/products.json', headers: test_api_headers
       response_data = JSON.parse(response.body)
       response_data.count.should == 1
-      response_data.first['id'].should == @product.to_param
+      response_data.first['id'].should == @product.id
     end
   end # Index
 
@@ -49,10 +49,10 @@ describe ProductsController, type: :request, api: true do
         reference: 'reference'
       )
 
-      get "/products/#{@product.to_param}.json", headers: test_api_headers
+      get "/products/#{@product.id}.json", headers: test_api_headers
 
       response.body.should == {
-        id: @product.to_param,
+        id: @product.id,
         name: 'name',
         description: 'description',
         order: 15,
@@ -62,8 +62,8 @@ describe ProductsController, type: :request, api: true do
         active: true,
         created_at: @product.created_at,
         updated_at: @product.updated_at,
-        menu_id: @menu.to_param,
-        group_id: @group.to_param
+        menu_id: @menu.id,
+        group_id: @group.id
       }.to_json
     end
 
@@ -71,7 +71,7 @@ describe ProductsController, type: :request, api: true do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
 
-      get "/products/#{new_product.to_param}.json", headers: test_api_headers
+      get "/products/#{new_product.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Product')
       }.to_json
@@ -104,7 +104,7 @@ describe ProductsController, type: :request, api: true do
       created_product = Product.last
 
       response.body.should == {
-        id: created_product.to_param,
+        id: created_product.id,
         name: 'name',
         description: 'description',
         order: 15,
@@ -121,14 +121,14 @@ describe ProductsController, type: :request, api: true do
 
     it 'should set menu_id' do
       new_menu = create(:menu)
-      @create_params[:product][:menu_id] = new_menu.to_param
+      @create_params[:product][:menu_id] = new_menu.id
       post '/products.json', params: @create_params, headers: test_api_headers
       Product.last.menu.should == new_menu
     end
 
     it 'should set group_id' do
       new_group = create(:group)
-      @create_params[:product][:group_id] = new_group.to_param
+      @create_params[:product][:group_id] = new_group.id
       post '/products.json', params: @create_params, headers: test_api_headers
       Product.last.group.should == new_group
     end
@@ -178,7 +178,7 @@ describe ProductsController, type: :request, api: true do
 
     it 'should update @product' do
       expect{
-        put "/products/#{@product.to_param}.json",
+        put "/products/#{@product.id}.json",
             params: @update_params,
             headers: test_api_headers
        }.to change{ @product.reload.price }
@@ -186,12 +186,12 @@ describe ProductsController, type: :request, api: true do
     end
 
     it 'should return Product data' do
-      put "/products/#{@product.to_param}.json",
+      put "/products/#{@product.id}.json",
           params: @update_params,
           headers: test_api_headers
 
       response.body.should == {
-        id: @product.reload.to_param,
+        id: @product.reload.id,
         name: nil,
         description: nil,
         order: nil,
@@ -201,13 +201,13 @@ describe ProductsController, type: :request, api: true do
         active: true,
         created_at: @product.created_at,
         updated_at: @product.updated_at,
-        menu_id: @menu.to_param,
-        group_id: @group.to_param
+        menu_id: @menu.id,
+        group_id: @group.id
       }.to_json
     end
 
     it 'should return code ' do
-      put "/products/#{@product.to_param}.json",
+      put "/products/#{@product.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.status.should == 200
@@ -217,7 +217,7 @@ describe ProductsController, type: :request, api: true do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
 
-      put "/products/#{new_product.to_param}.json",
+      put "/products/#{new_product.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.body.should == {
@@ -252,13 +252,13 @@ describe ProductsController, type: :request, api: true do
 
   describe 'DELETE /products/:id' do
     it 'should destroy a Product' do
-      expect{ delete "/products/#{@product.to_param}.json", headers: test_api_headers }
+      expect{ delete "/products/#{@product.id}.json", headers: test_api_headers }
             .to change{ Product.count }.by(-1)
       Product.find_by(id: @product.id).should == nil
     end
 
     it 'should return a code' do
-      delete "/products/#{@product.to_param}.json", headers: test_api_headers
+      delete "/products/#{@product.id}.json", headers: test_api_headers
       response.status.should == 204
     end
 
@@ -266,7 +266,7 @@ describe ProductsController, type: :request, api: true do
       new_account = create(:account)
       new_product = create(:product, account: new_account)
 
-      delete "/products/#{new_product.to_param}.json", headers: test_api_headers
+      delete "/products/#{new_product.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Product')
       }.to_json

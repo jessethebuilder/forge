@@ -32,6 +32,6 @@ FactoryBot.define do
   factory :order_item do
     order
     product
-    amount { Random.rand(0.01..100000.0).round(2) }
+    amount { product.price }
   end
 end

@@ -12,7 +12,7 @@ describe GroupsController, type: :request, api: true do
       get '/groups.json', headers: test_api_headers
       response.body.should == [
         {
-          id: @group.to_param,
+          id: @group.id,
           name: @group_name,
           description: nil,
           order: nil,
@@ -21,7 +21,7 @@ describe GroupsController, type: :request, api: true do
           active: true,
           created_at: @group.created_at,
           updated_at: @group.updated_at,
-          menu_id: @menu.to_param,
+          menu_id: @menu.id,
         }
       ].to_json
     end
@@ -32,7 +32,7 @@ describe GroupsController, type: :request, api: true do
       get '/groups.json', headers: test_api_headers
       response_data = JSON.parse(response.body)
       response_data.count.should == 1
-      response_data.first['id'].should == @group.to_param
+      response_data.first['id'].should == @group.id
     end
   end # Index
 
@@ -46,10 +46,10 @@ describe GroupsController, type: :request, api: true do
         reference: 'reference'
       )
 
-      get "/groups/#{@group.to_param}.json", headers: test_api_headers
+      get "/groups/#{@group.id}.json", headers: test_api_headers
 
       response.body.should == {
-        id: @group.to_param,
+        id: @group.id,
         name: 'name',
         description: 'description',
         order: 15,
@@ -58,7 +58,7 @@ describe GroupsController, type: :request, api: true do
         active: true,
         created_at: @group.created_at,
         updated_at: @group.updated_at,
-        menu_id: @menu.to_param
+        menu_id: @menu.id
       }.to_json
     end
 
@@ -66,7 +66,7 @@ describe GroupsController, type: :request, api: true do
       new_account = create(:account)
       new_group = create(:group, account: new_account)
 
-      get "/groups/#{new_group.to_param}.json", headers: test_api_headers
+      get "/groups/#{new_group.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Group')
       }.to_json
@@ -98,7 +98,7 @@ describe GroupsController, type: :request, api: true do
       created_group = Group.last
 
       response.body.should == {
-        id: created_group.to_param,
+        id: created_group.id,
         name: 'name',
         description: 'description',
         order: 15,
@@ -113,7 +113,7 @@ describe GroupsController, type: :request, api: true do
 
     it 'should accept menu_id as a param' do
       menu = create(:menu)
-      post '/groups.json', params: {group: {menu_id: menu.to_param}}, headers: test_api_headers
+      post '/groups.json', params: {group: {menu_id: menu.id}}, headers: test_api_headers
       Group.last.menu.should == menu
     end
 
@@ -140,7 +140,7 @@ describe GroupsController, type: :request, api: true do
 
     it 'should update @group' do
       expect{
-        put "/groups/#{@group.to_param}.json",
+        put "/groups/#{@group.id}.json",
             params: @update_params,
             headers: test_api_headers
        }.to change{ @group.reload.name }
@@ -148,12 +148,12 @@ describe GroupsController, type: :request, api: true do
     end
 
     it 'should return Group data' do
-      put "/groups/#{@group.to_param}.json",
+      put "/groups/#{@group.id}.json",
           params: @update_params,
           headers: test_api_headers
 
       response.body.should == {
-        id: @group.reload.to_param,
+        id: @group.reload.id,
         name: "#{@group_name} the Third!",
         description: nil,
         order: nil,
@@ -162,12 +162,12 @@ describe GroupsController, type: :request, api: true do
         active: true,
         created_at: @group.created_at,
         updated_at: @group.updated_at,
-        menu_id: @menu.to_param
+        menu_id: @menu.id
       }.to_json
     end
 
     it 'should return code ' do
-      put "/groups/#{@group.to_param}.json",
+      put "/groups/#{@group.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.status.should == 200
@@ -177,7 +177,7 @@ describe GroupsController, type: :request, api: true do
       new_account = create(:account)
       new_group = create(:group, account: new_account)
 
-      put "/groups/#{new_group.to_param}.json",
+      put "/groups/#{new_group.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.body.should == {
@@ -190,13 +190,13 @@ describe GroupsController, type: :request, api: true do
 
   describe 'DELETE /groups/:id' do
     it 'should destroy a Group' do
-      expect{ delete "/groups/#{@group.to_param}.json", headers: test_api_headers }
+      expect{ delete "/groups/#{@group.id}.json", headers: test_api_headers }
             .to change{ Group.count }.by(-1)
       Group.find_by(id: @group.id).should == nil
     end
 
     it 'should return a code' do
-      delete "/groups/#{@group.to_param}.json", headers: test_api_headers
+      delete "/groups/#{@group.id}.json", headers: test_api_headers
       response.status.should == 204
     end
 
@@ -204,7 +204,7 @@ describe GroupsController, type: :request, api: true do
       new_account = create(:account)
       new_group = create(:group, account: new_account)
 
-      delete "/groups/#{new_group.to_param}.json", headers: test_api_headers
+      delete "/groups/#{new_group.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Group')
       }.to_json

@@ -6,12 +6,12 @@ describe CustomersController, type: :request, api: true do
     @customer = create(:customer, account: @account, name: @customer_name)
   end
 
-  describe 'GET /customers' do 
+  describe 'GET /customers' do
     it 'should return an array of Customers' do
       get '/customers.json', headers: test_api_headers
       response.body.should == [
         {
-          id: @customer.to_param,
+          id: @customer.id,
           email: nil,
           name: @customer_name,
           phone: nil,
@@ -29,7 +29,7 @@ describe CustomersController, type: :request, api: true do
       get '/customers.json', headers: test_api_headers
       response_data = JSON.parse(response.body)
       response_data.count.should == 1
-      response_data.first['id'].should == @customer.to_param
+      response_data.first['id'].should == @customer.id
     end
   end # Index
 
@@ -43,10 +43,10 @@ describe CustomersController, type: :request, api: true do
         reference: 'reference'
       )
 
-      get "/customers/#{@customer.to_param}.json", headers: test_api_headers
+      get "/customers/#{@customer.id}.json", headers: test_api_headers
 
       response.body.should == {
-        id: @customer.to_param,
+        id: @customer.id,
         email: 'email',
         name: 'name',
         phone: '123-456-7890',
@@ -61,7 +61,7 @@ describe CustomersController, type: :request, api: true do
       new_account = create(:account)
       new_customer = create(:customer, account: new_account)
 
-      get "/customers/#{new_customer.to_param}.json", headers: test_api_headers
+      get "/customers/#{new_customer.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Customer')
       }.to_json
@@ -92,7 +92,7 @@ describe CustomersController, type: :request, api: true do
       created_customer = Customer.last
 
       response.body.should == {
-        id: created_customer.to_param,
+        id: created_customer.id,
         email: 'email',
         name: 'name',
         phone: '123-456-7890',
@@ -126,7 +126,7 @@ describe CustomersController, type: :request, api: true do
 
     it 'should update @customer' do
       expect{
-        put "/customers/#{@customer.to_param}.json",
+        put "/customers/#{@customer.id}.json",
             params: @update_params,
             headers: test_api_headers
        }.to change{ @customer.reload.name }
@@ -134,12 +134,12 @@ describe CustomersController, type: :request, api: true do
     end
 
     it 'should return Customer data' do
-      put "/customers/#{@customer.to_param}.json",
+      put "/customers/#{@customer.id}.json",
           params: @update_params,
           headers: test_api_headers
 
       response.body.should == {
-        id: @customer.reload.to_param,
+        id: @customer.reload.id,
         email: nil,
         name: "#{@customer_name} the Third!",
         phone: nil,
@@ -151,7 +151,7 @@ describe CustomersController, type: :request, api: true do
     end
 
     it 'should return code ' do
-      put "/customers/#{@customer.to_param}.json",
+      put "/customers/#{@customer.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.status.should == 200
@@ -161,7 +161,7 @@ describe CustomersController, type: :request, api: true do
       new_account = create(:account)
       new_customer = create(:customer, account: new_account)
 
-      put "/customers/#{new_customer.to_param}.json",
+      put "/customers/#{new_customer.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.body.should == {
@@ -174,13 +174,13 @@ describe CustomersController, type: :request, api: true do
 
   describe 'DELETE /customers/:id' do
     it 'should destroy a Customer' do
-      expect{ delete "/customers/#{@customer.to_param}.json", headers: test_api_headers }
+      expect{ delete "/customers/#{@customer.id}.json", headers: test_api_headers }
             .to change{ Customer.count }.by(-1)
       Customer.find_by(id: @customer.id).should == nil
     end
 
     it 'should return a code' do
-      delete "/customers/#{@customer.to_param}.json", headers: test_api_headers
+      delete "/customers/#{@customer.id}.json", headers: test_api_headers
       response.status.should == 204
     end
 
@@ -188,7 +188,7 @@ describe CustomersController, type: :request, api: true do
       new_account = create(:account)
       new_customer = create(:customer, account: new_account)
 
-      delete "/customers/#{new_customer.to_param}.json", headers: test_api_headers
+      delete "/customers/#{new_customer.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Customer')
       }.to_json

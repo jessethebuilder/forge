@@ -14,10 +14,6 @@ describe Customer, type: :model do
   end # Associations
 
   describe 'Attributes' do
-    specify ':active defaults to true' do
-      @customer.active.should == true
-    end
-
     specify ':data defaults to and empty Hash' do
       @customer.data.should == {}
     end

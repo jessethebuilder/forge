@@ -1,30 +1,25 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show, :edit, :update, :destroy]
+  before_action :set_order, only: [:show, :update, :destroy]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
 
-  # GET /orders
-  # GET /orders.json
   def index
-    @orders = Order.all
+    @orders = Order.where(account_id: current_account.id).includes(:order_items)
   end
 
-  # GET /orders/1
-  # GET /orders/1.json
   def show
   end
 
-  # GET /orders/new
+
   def new
     @order = Order.new
   end
 
-  # GET /orders/1/edit
   def edit
   end
 
-  # POST /orders
-  # POST /orders.json
   def create
     @order = Order.new(order_params)
+    @order.account = current_account
 
     respond_to do |format|
       if @order.save
@@ -37,8 +32,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  # PATCH/PUT /orders/1
-  # PATCH/PUT /orders/1.json
   def update
     respond_to do |format|
       if @order.update(order_params)
@@ -51,8 +44,6 @@ class OrdersController < ApplicationController
     end
   end
 
-  # DELETE /orders/1
-  # DELETE /orders/1.json
   def destroy
     @order.destroy
     respond_to do |format|
@@ -62,13 +53,24 @@ class OrdersController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_order
-      @order = Order.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def order_params
-      params.require(:order).permit(:data, :account_id_id, :customer_id_id, :menu_id_id)
-    end
+  def set_order
+    @order = Order.find(params[:id])
+    @resource = @order
+  end
+
+  def order_params
+    params.require(:order).permit(
+      :note,
+      :customer_id,
+      :menu_id,
+      :reference,
+      :data,
+      order_items_attributes: [:product_id, :note, :amount]
+    )
+    # p[:order_items_attributes] = p[:order_items]
+    # p.delete(:order_items)
+
+    # return p
+  end
 end

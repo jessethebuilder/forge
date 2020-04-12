@@ -1,6 +1,7 @@
 describe OrderItem, type: :model do
   before do
     @order_item = build(:order_item)
+    @product = @order_item.product
   end
 
   describe 'Validations' do
@@ -9,6 +10,18 @@ describe OrderItem, type: :model do
 
     specify{ association_must_exist(@order_item, :order) }
     specify{ association_must_exist(@order_item, :product) }
+
+    it 'should validate that product is available' do
+      @order_item.product.update(active: false)
+      @order_item.valid?.should == false
+      @order_item.errors[:product].should == ["#{@product.id} is no longer available"]
+    end
+
+    it 'should validate that product is available' do
+      @order_item.product.update(price: @order_item.product.price + 14)
+      @order_item.valid?.should == false
+      @order_item.errors[:product].should == ["#{@product.id} price has changed"]
+    end
   end # Validations
 
   describe 'Associations' do

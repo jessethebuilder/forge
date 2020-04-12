@@ -11,7 +11,7 @@ describe MenusController, type: :request, api: true do
       get '/menus.json', headers: test_api_headers
       response.body.should == [
         {
-          id: @menu.to_param,
+          id: @menu.id,
           name: @menu_name,
           description: nil,
           data: {},
@@ -29,7 +29,7 @@ describe MenusController, type: :request, api: true do
       get '/menus.json', headers: test_api_headers
       response_data = JSON.parse(response.body)
       response_data.count.should == 1
-      response_data.first['id'].should == @menu.to_param
+      response_data.first['id'].should == @menu.id
     end
   end # Index
 
@@ -42,10 +42,10 @@ describe MenusController, type: :request, api: true do
         reference: 'reference'
       )
 
-      get "/menus/#{@menu.to_param}.json", headers: test_api_headers
+      get "/menus/#{@menu.id}.json", headers: test_api_headers
 
       response.body.should == {
-        id: @menu.to_param,
+        id: @menu.id,
         name: 'name',
         description: 'description',
         data: {hello: 'world'},
@@ -60,7 +60,7 @@ describe MenusController, type: :request, api: true do
       new_account = create(:account)
       new_menu = create(:menu, account: new_account)
 
-      get "/menus/#{new_menu.to_param}.json", headers: test_api_headers
+      get "/menus/#{new_menu.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Menu')
       }.to_json
@@ -91,7 +91,7 @@ describe MenusController, type: :request, api: true do
       created_menu = Menu.last
 
       response.body.should == {
-        id: created_menu.to_param,
+        id: created_menu.id,
         name: 'name',
         description: 'description',
         data: {},
@@ -125,7 +125,7 @@ describe MenusController, type: :request, api: true do
 
     it 'should update @menu' do
       expect{
-        put "/menus/#{@menu.to_param}.json",
+        put "/menus/#{@menu.id}.json",
             params: @update_params,
             headers: test_api_headers
        }.to change{ @menu.reload.name }
@@ -133,12 +133,12 @@ describe MenusController, type: :request, api: true do
     end
 
     it 'should return Menu data' do
-      put "/menus/#{@menu.to_param}.json",
+      put "/menus/#{@menu.id}.json",
           params: @update_params,
           headers: test_api_headers
 
       response.body.should == {
-        id: @menu.reload.to_param,
+        id: @menu.reload.id,
         name: "#{@menu_name} the Third!",
         description: nil,
         data: {},
@@ -150,7 +150,7 @@ describe MenusController, type: :request, api: true do
     end
 
     it 'should return code ' do
-      put "/menus/#{@menu.to_param}.json",
+      put "/menus/#{@menu.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.status.should == 200
@@ -160,7 +160,7 @@ describe MenusController, type: :request, api: true do
       new_account = create(:account)
       new_menu = create(:menu, account: new_account)
 
-      put "/menus/#{new_menu.to_param}.json",
+      put "/menus/#{new_menu.id}.json",
           params: @update_params,
           headers: test_api_headers
       response.body.should == {
@@ -173,13 +173,13 @@ describe MenusController, type: :request, api: true do
 
   describe 'DELETE /menus/:id' do
     it 'should destroy a Menu' do
-      expect{ delete "/menus/#{@menu.to_param}.json", headers: test_api_headers }
+      expect{ delete "/menus/#{@menu.id}.json", headers: test_api_headers }
             .to change{ Menu.count }.by(-1)
       Menu.find_by(id: @menu.id).should == nil
     end
 
     it 'should return a code' do
-      delete "/menus/#{@menu.to_param}.json", headers: test_api_headers
+      delete "/menus/#{@menu.id}.json", headers: test_api_headers
       response.status.should == 204
     end
 
@@ -187,7 +187,7 @@ describe MenusController, type: :request, api: true do
       new_account = create(:account)
       new_menu = create(:menu, account: new_account)
 
-      delete "/menus/#{new_menu.to_param}.json", headers: test_api_headers
+      delete "/menus/#{new_menu.id}.json", headers: test_api_headers
       response.body.should == {
         error: I18n.t('errors.no_auth.resource', resource_type: 'Menu')
       }.to_json

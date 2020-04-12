@@ -14,5 +14,9 @@ Rails.application.routes.draw do
     :orders
   )
 
-  resources :order_items, only: [:create, :destroy]
+  resources :order_items, only: [] do
+    member do
+      # Future home of a refund endopoint
+    end
+  end
 end
