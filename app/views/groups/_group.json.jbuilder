@@ -1,2 +1,15 @@
-json.extract! group, :id, :name, :description, :order, :reference, :data, :active, :account_id_id, :menu_id_id, :created_at, :updated_at
-json.url group_url(group, format: :json)
+json.id group.to_param
+
+json.extract!(
+  group,
+  :name,
+  :description,
+  :order,
+  :data,
+  :reference,
+  :active,
+  :created_at,
+  :updated_at
+)
+
+json.menu_id group.menu.to_param

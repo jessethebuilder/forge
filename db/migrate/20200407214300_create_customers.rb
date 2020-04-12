@@ -6,7 +6,6 @@ class CreateCustomers < ActiveRecord::Migration[6.0]
       t.string :phone
       t.string :reference
       t.jsonb :data, default: {}
-      t.boolean :active, default: true
 
       t.timestamps
     end

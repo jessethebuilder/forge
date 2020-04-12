@@ -2,12 +2,12 @@ class ApplicationController < ActionController::Base
  include ActionController::HttpAuthentication::Token::ControllerMethods
  before_action :authenticate!
 
-  def auth_resource_account(resource)
-    unless current_account == resource.account
+  def authenticate_account_can_access_resource!
+    unless current_account == @resource.account
       respond_to do |format|
         format.json{
           render json: {
-            error: t('errors.no_auth.resource', resource_type: resource.class.name)
+            error: t('errors.no_auth.resource', resource_type: @resource.class.name)
           },
           status: 401
         }

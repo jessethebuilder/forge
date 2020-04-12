@@ -1,30 +1,25 @@
 class MenusController < ApplicationController
-  before_action :set_menu, only: [:show, :edit, :update, :destroy]
+  before_action :set_menu, only: [:show, :update, :destroy]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
 
-  # GET /menus
-  # GET /menus.json
   def index
-    @menus = Menu.all
+    @menus = Menu.where(account_id: current_account.id)
   end
 
-  # GET /menus/1
-  # GET /menus/1.json
   def show
   end
 
-  # GET /menus/new
+
   def new
     @menu = Menu.new
   end
 
-  # GET /menus/1/edit
   def edit
   end
 
-  # POST /menus
-  # POST /menus.json
   def create
     @menu = Menu.new(menu_params)
+    @menu.account = current_account
 
     respond_to do |format|
       if @menu.save
@@ -37,8 +32,6 @@ class MenusController < ApplicationController
     end
   end
 
-  # PATCH/PUT /menus/1
-  # PATCH/PUT /menus/1.json
   def update
     respond_to do |format|
       if @menu.update(menu_params)
@@ -51,8 +44,6 @@ class MenusController < ApplicationController
     end
   end
 
-  # DELETE /menus/1
-  # DELETE /menus/1.json
   def destroy
     @menu.destroy
     respond_to do |format|
@@ -62,13 +53,14 @@ class MenusController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_menu
-      @menu = Menu.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def menu_params
-      params.require(:menu).permit(:name, :reference, :data, :active, :account_id_id)
-    end
+  def set_menu
+    @menu = Menu.find(params[:id])
+    @resource = @menu
+  end
+
+  def menu_params
+    params.require(:menu).permit(
+      :name, :description, :data, :reference, :active, :order)
+  end
 end

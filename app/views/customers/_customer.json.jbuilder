@@ -1,2 +1,12 @@
-json.extract! customer, :id, :email, :name, :phone, :reference, :data, :active, :account_id_id, :created_at, :updated_at
-json.url customer_url(customer, format: :json)
+json.id customer.to_param
+
+json.extract!(
+  customer,
+  :email,
+  :name,
+  :phone,
+  :data,
+  :reference,
+  :created_at,
+  :updated_at
+)

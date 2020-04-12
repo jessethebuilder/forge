@@ -1,10 +1,9 @@
 class ProductsController < ApplicationController
   before_action :set_product, only: [:show, :update, :destroy]
-  before_action :auth_product_account!, only: [:show, :update, :destroy]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
 
   def index
     @products = Product.where(account_id: current_account.id)
-                       .includes(:account)
                        .includes(:menu)
                        .includes(:group)
   end
@@ -59,13 +58,12 @@ class ProductsController < ApplicationController
 
   def set_product
     @product = Product.find(params[:id])
+    @resource = @product
   end
 
   def product_params
-    params.require(:product).permit(:name, :description, :order, :price, :data, :active, :account_id_id, :menu_id_id, :group_id_id)
-  end
-
-  def auth_product_account!
-    auth_resource_account(@product)
+    params.require(:product).permit(
+      :name, :description, :price, :data, :reference, :active,
+      :order, :menu_id, :group_id)
   end
 end

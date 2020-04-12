@@ -6,6 +6,7 @@ class CreateProducts < ActiveRecord::Migration[6.0]
       t.integer :order
       t.float :price
       t.jsonb :data, default: {}
+      t.string :reference
       t.boolean :active, default: true
 
       t.timestamps

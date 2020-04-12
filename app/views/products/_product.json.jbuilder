@@ -1,7 +1,4 @@
 json.id product.to_param
-json.account_id product.account.to_param
-json.menu_id product.menu.to_param
-json.group_id product.group.to_param
 
 json.extract!(
   product,
@@ -10,7 +7,11 @@ json.extract!(
   :order,
   :price,
   :data,
+  :reference,
   :active,
   :created_at,
   :updated_at
 )
+
+json.menu_id product.menu.to_param
+json.group_id product.group.to_param
