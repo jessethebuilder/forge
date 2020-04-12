@@ -1,0 +1,41 @@
+<p id="notice"><%= notice %></p>
+
+<h1>Groups</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th>Order</th>
+      <th>Reference</th>
+      <th>Data</th>
+      <th>Active</th>
+      <th>Account</th>
+      <th>Menu</th>
+      <th colspan="3"></th>
+    </tr>
+  </thead>
+
+  <tbody>
+    <% @groups.each do |group| %>
+      <tr>
+        <td><%= group.name %></td>
+        <td><%= group.description %></td>
+        <td><%= group.order %></td>
+        <td><%= group.reference %></td>
+        <td><%= group.data %></td>
+        <td><%= group.active %></td>
+        <td><%= group.account_id_id %></td>
+        <td><%= group.menu_id_id %></td>
+        <td><%= link_to 'Show', group %></td>
+        <td><%= link_to 'Edit', edit_group_path(group) %></td>
+        <td><%= link_to 'Destroy', group, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<br>
+
+<%= link_to 'New Group', new_group_path %>
