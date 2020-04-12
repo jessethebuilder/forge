@@ -9,13 +9,13 @@ class OrdersController < ApplicationController
   def show
   end
 
-
-  def new
-    @order = Order.new
-  end
-
-  def edit
-  end
+  # Doing orders from an HTML admin panel is an intereting idea. But not for now.
+  # def new
+  #   @order = Order.new
+  # end
+  #
+  # def edit
+  # end
 
   def create
     @order = Order.new(order_params)
@@ -23,10 +23,11 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       if @order.save
-        format.html { redirect_to @order, notice: 'Order was successfully created.' }
+        payment_processor.fund_order(@order)
+        # format.html { redirect_to @order, notice: 'Order was successfully created.' }
         format.json { render :show, status: :created, location: @order }
       else
-        format.html { render :new }
+        # format.html { render :new }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
@@ -35,10 +36,10 @@ class OrdersController < ApplicationController
   def update
     respond_to do |format|
       if @order.update(order_params)
-        format.html { redirect_to @order, notice: 'Order was successfully updated.' }
+        # format.html { redirect_to @order, notice: 'Order was successfully updated.' }
         format.json { render :show, status: :ok, location: @order }
       else
-        format.html { render :edit }
+        # format.html { render :edit }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
@@ -72,5 +73,9 @@ class OrdersController < ApplicationController
     # p.delete(:order_items)
 
     # return p
+  end
+
+  def payment_processor
+    @payment_processor ||= PaymentProcessor.new
   end
 end

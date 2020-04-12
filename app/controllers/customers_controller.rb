@@ -1,6 +1,6 @@
 class CustomersController < ApplicationController
-  before_action :set_customer, only: [:show, :update, :destroy]
-  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
+  before_action :set_customer, only: [:show, :update, :destroy, :edit]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
 
   def index
     @customers = Customer.where(account_id: current_account.id)

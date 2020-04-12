@@ -22,6 +22,16 @@ describe Order, type: :model do
   end # Behaviors
 
   describe 'Methods' do
+    describe '#total' do
+      it 'should return the total of all order_items' do
+        product = create(:product, price: 15.0)
+        @order.order_items << [
+          create(:order_item, product: product),
+          create(:order_item, product: product)
+        ]
+        @order.total.should == 30
+      end
+    end
   end # Methods
 
   describe 'Class Methods' do

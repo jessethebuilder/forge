@@ -118,6 +118,10 @@ describe OrdersController, type: :request, api: true do
       Order.last.account.should == @account
     end
 
+    it 'should call PaymentProcessor' do
+      expect_any_instance_of(PaymentProcessor).to receive(:fund_order)
+      post '/orders.json', params: @create_params, headers: test_api_headers
+    end
 
     describe 'OrderItems' do
       before do

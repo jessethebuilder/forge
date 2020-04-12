@@ -1,6 +1,6 @@
 class GroupsController < ApplicationController
-  before_action :set_group, only: [:show, :update, :destroy]
-  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
+  before_action :set_group, only: [:show, :update, :destroy, :edit]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
 
   def index
     @groups = Group.where(account_id: current_account.id)

@@ -1,0 +1,2 @@
+class StripeClient
+end
