@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_13_225530) do
+ActiveRecord::Schema.define(version: 2020_04_17_092315) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -18,9 +18,9 @@ ActiveRecord::Schema.define(version: 2020_04_13_225530) do
   create_table "accounts", force: :cascade do |t|
     t.boolean "active", default: true
     t.jsonb "data", default: {}
+    t.string "schema", default: "menu"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.string "schema", default: "menu"
   end
 
   create_table "credentials", force: :cascade do |t|
@@ -115,6 +115,15 @@ ActiveRecord::Schema.define(version: 2020_04_13_225530) do
     t.index ["account_id"], name: "index_products_on_account_id"
     t.index ["group_id"], name: "index_products_on_group_id"
     t.index ["menu_id"], name: "index_products_on_menu_id"
+  end
+
+  create_table "transactions", force: :cascade do |t|
+    t.float "amount"
+    t.string "reference"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "order_id"
+    t.index ["order_id"], name: "index_transactions_on_order_id"
   end
 
   create_table "users", force: :cascade do |t|

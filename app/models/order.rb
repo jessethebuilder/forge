@@ -6,7 +6,13 @@ class Order < ApplicationRecord
   has_many :order_items
   accepts_nested_attributes_for :order_items
 
+  has_many :transactions
+
   def total
     order_items.map(&:amount).sum
+  end
+
+  def refund_total
+    transactions.refunds.map(&:amount).sum
   end
 end

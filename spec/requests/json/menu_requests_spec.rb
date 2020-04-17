@@ -1,4 +1,4 @@
-describe MenusController, type: :request, api: true do
+describe 'Menu Requests', type: :request, api: true do
   before do
     @account = create(:account)
     @credential = create(:credential, account: @account)

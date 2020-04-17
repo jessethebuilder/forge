@@ -1,4 +1,4 @@
-describe ProductsController, type: :request, api: true do
+describe 'Product Requests', type: :request, api: true do
   before do
     @account = create(:account)
     @credential = create(:credential, account: @account)
