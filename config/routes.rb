@@ -6,6 +6,9 @@ def dual_routes_for(*resource_list)
 end
 
 Rails.application.routes.draw do
+  resource :account, only: [:new, :show]
+  root to: 'accounts#new'
+
   dual_routes_for(
     :products,
     :groups,
@@ -19,4 +22,6 @@ Rails.application.routes.draw do
       # Future home of a refund endopoint
     end
   end
+
+  devise_for :users
 end

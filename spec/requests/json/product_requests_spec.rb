@@ -14,7 +14,7 @@ describe ProductsController, type: :request, api: true do
       response.body.should == [
         {
           id: @product.id,
-          name: nil,
+          name: @product.name,
           description: nil,
           order: nil,
           price: @product.price,
@@ -147,8 +147,7 @@ describe ProductsController, type: :request, api: true do
     context 'Bad Params' do
       before do
         @create_params[:product].delete(:price) # Now they are BAD!!
-        @create_params[:product][:name] = 'a name' # Strong Params doesn't like empty params
-      end
+     end
 
       it 'should return an error' do
         post '/products.json', params: @create_params, headers: test_api_headers
@@ -164,7 +163,7 @@ describe ProductsController, type: :request, api: true do
         post '/products.json', params: @create_params, headers: test_api_headers
         response.status.should == 422
       end
-    end
+    end # Bad Params
   end # Create
 
   describe 'PUT /products/:id' do
@@ -192,7 +191,7 @@ describe ProductsController, type: :request, api: true do
 
       response.body.should == {
         id: @product.reload.id,
-        name: nil,
+        name: @product.name,
         description: nil,
         order: nil,
         price: @update_params[:product][:price],
@@ -227,7 +226,7 @@ describe ProductsController, type: :request, api: true do
       response.status.should == 401
     end
 
-    context 'Bad Params' do
+    context 'BAD Params' do
       before do
         @update_params[:product].delete(:price) # Now they are BAD!!
         @update_params[:product][:name] = 'a name' # Strong Params doesn't like empty params
@@ -247,7 +246,7 @@ describe ProductsController, type: :request, api: true do
         post '/products.json', params: @update_params, headers: test_api_headers
         response.status.should == 422
       end
-    end
+    end # Bad Params
   end # Update
 
   describe 'DELETE /products/:id' do

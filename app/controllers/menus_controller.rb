@@ -1,9 +1,12 @@
 class MenusController < ApplicationController
+  before_action :authenticate!
   before_action :set_menu, only: [:show, :update, :destroy, :edit]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
+  before_action :set_depth, only: [:index, :show], if: :json_request?
+  before_action :set_scope, only: [:index, :show]
 
   def index
-    @menus = Menu.where(account_id: current_account.id)
+    @menus = Menu.send(@scope).where(account_id: current_account.id)
   end
 
   def show
@@ -45,7 +48,10 @@ class MenusController < ApplicationController
   end
 
   def destroy
+    @menu.products.destroy_all if params[:destroy_products]
+    @menu.groups.destroy_all if params[:destroy_groups]
     @menu.destroy
+
     respond_to do |format|
       format.html { redirect_to menus_url, notice: 'Menu was successfully destroyed.' }
       format.json { head :no_content }

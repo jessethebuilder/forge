@@ -1,29 +1,11 @@
 <%= form_with(model: product, local: true) do |form| %>
-  <% if product.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:</h2>
+  <%= render partial: 'layouts/partials/errors', locals: {record: product} %>
 
-      <ul>
-        <% product.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= form.hidden_field :group_id, value: product.group_id || params[:group_id] %>
 
   <div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
-  </div>
-
-  <div class="field">
-    <%= form.label :description %>
-    <%= form.text_area :description %>
-  </div>
-
-  <div class="field">
-    <%= form.label :order %>
-    <%= form.number_field :order %>
   </div>
 
   <div class="field">
@@ -32,28 +14,13 @@
   </div>
 
   <div class="field">
-    <%= form.label :data %>
-    <%= form.text_field :data %>
+    <%= form.label :description %>
+    <%= form.text_area :description %>
   </div>
 
   <div class="field">
     <%= form.label :active %>
     <%= form.check_box :active %>
-  </div>
-
-  <div class="field">
-    <%= form.label :account_id_id %>
-    <%= form.text_field :account_id_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :menu_id_id %>
-    <%= form.text_field :menu_id_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :group_id_id %>
-    <%= form.text_field :group_id_id %>
   </div>
 
   <div class="actions">

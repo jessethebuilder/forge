@@ -13,7 +13,7 @@ describe OrdersController, type: :request, api: true do
       response.body.should == [
         {
           id: @order.id,
-          order_items: [],
+          items: [],
           data: {},
           reference: nil,
           created_at: @order.created_at,
@@ -45,7 +45,7 @@ describe OrdersController, type: :request, api: true do
 
       response.body.should == {
         id: @order.id,
-        order_items: [],
+        items: [],
         data: {hello: 'world'},
         reference: 'reference',
         created_at: @order.created_at,
@@ -85,7 +85,7 @@ describe OrdersController, type: :request, api: true do
 
       response.body.should == {
         id: created_order.id,
-        order_items: [],
+        items: [],
         data: {},
         reference: 'reference',
         created_at: created_order.created_at,
@@ -127,7 +127,8 @@ describe OrdersController, type: :request, api: true do
       before do
         @product = create(:product)
         @order_item_params = {product_id: @product.id, amount: @product.price}
-        @create_params[:order][:order_items_attributes] = [@order_item_params]
+        @create_params[:order][:items] = [@order_item_params]
+        # @create_params[:order][:order_items_attributes] = [@order_item_params]
       end
 
       it 'should create a new OrderItem' do
@@ -209,7 +210,7 @@ describe OrdersController, type: :request, api: true do
 
       response.body.should == {
         id: @order.reload.id,
-        order_items: [],
+        items: [],
         data: {},
         reference: @update_params[:order][:reference],
         created_at: @order.created_at,

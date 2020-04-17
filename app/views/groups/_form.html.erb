@@ -11,6 +11,8 @@
     </div>
   <% end %>
 
+  <%= form.hidden_field :menu_id, value: group.menu_id || params[:menu_id] %>
+
   <div class="field">
     <%= form.label :name %>
     <%= form.text_field :name %>
@@ -22,33 +24,8 @@
   </div>
 
   <div class="field">
-    <%= form.label :order %>
-    <%= form.text_field :order %>
-  </div>
-
-  <div class="field">
-    <%= form.label :reference %>
-    <%= form.text_field :reference %>
-  </div>
-
-  <div class="field">
-    <%= form.label :data %>
-    <%= form.text_field :data %>
-  </div>
-
-  <div class="field">
     <%= form.label :active %>
     <%= form.check_box :active %>
-  </div>
-
-  <div class="field">
-    <%= form.label :account_id_id %>
-    <%= form.text_field :account_id_id %>
-  </div>
-
-  <div class="field">
-    <%= form.label :menu_id_id %>
-    <%= form.text_field :menu_id_id %>
   </div>
 
   <div class="actions">

@@ -9,6 +9,6 @@ class CreateOrderItems < ActiveRecord::Migration[6.0]
     end
 
     add_reference(:order_items, :order, foreign_key: true)
-    add_reference(:order_items, :product, foreign_key: true)
+    add_reference(:order_items, :product)
   end
 end

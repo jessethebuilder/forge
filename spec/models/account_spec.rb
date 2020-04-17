@@ -4,6 +4,8 @@ describe Account, type: :model do
   end
 
   describe 'Validations' do
+    it{ should validate_presence_of :schema }
+    it{ should validate_inclusion_of(:schema).in_array(Account::SCHEMAS) }
   end # Validations
 
   describe 'Associations' do
@@ -13,11 +15,16 @@ describe Account, type: :model do
     it{ should have_many :orders }
     it{ should have_many :customers }
     it{ should have_many :credentials }
+    it{ should have_many :users }
   end # Associations
 
   describe 'Attributes' do
     specify ':data defaults to and empty Hash' do
       @account.data.should == {}
+    end
+
+    specify ':schema defaults to "menu"' do
+      @account.schema.should == 'menu'
     end
   end # Attributes
 

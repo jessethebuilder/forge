@@ -1,4 +1,5 @@
 class OrdersController < ApplicationController
+  before_action :authenticate!
   before_action :set_order, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
 
@@ -61,18 +62,18 @@ class OrdersController < ApplicationController
   end
 
   def order_params
-    params.require(:order).permit(
+    p = params.require(:order).permit(
       :note,
       :customer_id,
       :menu_id,
       :reference,
       :data,
-      order_items_attributes: [:product_id, :note, :amount]
+      items: [:product_id, :note, :amount]
     )
-    # p[:order_items_attributes] = p[:order_items]
-    # p.delete(:order_items)
+    p[:order_items_attributes] = p[:items] if p[:items]
+    p.delete(:items)
 
-    # return p
+    return p
   end
 
   def payment_processor

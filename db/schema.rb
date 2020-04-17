@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_07_215507) do
+ActiveRecord::Schema.define(version: 2020_04_13_225530) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -20,6 +20,7 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
     t.jsonb "data", default: {}
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "schema", default: "menu"
   end
 
   create_table "credentials", force: :cascade do |t|
@@ -28,7 +29,9 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
+    t.bigint "user_id"
     t.index ["account_id"], name: "index_credentials_on_account_id"
+    t.index ["user_id"], name: "index_credentials_on_user_id"
   end
 
   create_table "customers", force: :cascade do |t|
@@ -114,17 +117,32 @@ ActiveRecord::Schema.define(version: 2020_04_07_215507) do
     t.index ["menu_id"], name: "index_products_on_menu_id"
   end
 
+  create_table "users", force: :cascade do |t|
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
+    t.inet "current_sign_in_ip"
+    t.inet "last_sign_in_ip"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "account_id"
+    t.index ["account_id"], name: "index_users_on_account_id"
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+  end
+
   add_foreign_key "credentials", "accounts"
+  add_foreign_key "credentials", "users"
   add_foreign_key "customers", "accounts"
   add_foreign_key "groups", "accounts"
-  add_foreign_key "groups", "menus"
   add_foreign_key "menus", "accounts"
   add_foreign_key "order_items", "orders"
-  add_foreign_key "order_items", "products"
   add_foreign_key "orders", "accounts"
-  add_foreign_key "orders", "customers"
-  add_foreign_key "orders", "menus"
   add_foreign_key "products", "accounts"
-  add_foreign_key "products", "groups"
-  add_foreign_key "products", "menus"
+  add_foreign_key "users", "accounts"
 end

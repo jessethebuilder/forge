@@ -13,7 +13,7 @@ class CreateProducts < ActiveRecord::Migration[6.0]
     end
 
     add_reference(:products, :account, foreign_key: true)
-    add_reference(:products, :menu, foreign_key: true)
-    add_reference(:products, :group, foreign_key: true)
+    add_reference(:products, :menu)
+    add_reference(:products, :group)
   end
 end

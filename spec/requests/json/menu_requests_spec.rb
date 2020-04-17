@@ -31,6 +31,83 @@ describe MenusController, type: :request, api: true do
       response_data.count.should == 1
       response_data.first['id'].should == @menu.id
     end
+
+
+    describe 'Depth' do
+      before do
+        @group1 = create(:group, menu: @menu, account: @account)
+        @product1 = create(:product, group: @group1, account: @account, menu: @menu)
+        @product2 = create(:product, group: @group1, account: @account, menu: @menu)
+        @group2 = create(:group, account: @account, menu: @menu)
+        @product3 = create(:product, group: @group2, account: @account, menu: @menu)
+      end
+
+      it 'should return Groups belonging to Menu' do
+        get "/menus.json",
+            params: {deep: true},
+            headers: test_api_headers
+
+        groups_data = JSON.parse(response.body).first['groups']
+        groups_data.first['id'].should == @group1.id
+        groups_data.last['id'].should == @group2.id
+      end
+
+      it 'should return Product data as well' do
+        get "/menus.json",
+            params: {deep: true},
+            headers: test_api_headers
+
+        products_data = JSON.parse(response.body).first['groups'].first['products']
+        products_data.first['id'].should == @product1.id
+        products_data.last['id'].should == @product2.id
+      end
+
+      describe 'With Inacive associated records' do
+        before do
+          @group2.update(active: false)
+        end
+
+        it 'should show only active records if scope is :active (default)' do
+          get "/menus.json",
+              params: {deep: true},
+              headers: test_api_headers
+          data = JSON.parse(response.body).first['groups']
+          data.count.should == 1
+          data.first['id'].should == @group1.id
+        end
+
+        it 'should show only active records if scope is :all' do
+          get "/menus.json",
+              params: {deep: true, scope: :all},
+              headers: test_api_headers
+          data = JSON.parse(response.body).first['groups']
+          data.count.should == 2
+        end
+      end
+
+      describe 'With inactive products' do
+        before do
+          @product1.update(active: false)
+        end
+
+        it 'should show only active records if scope is :active (default)' do
+          get "/menus.json",
+              params: {deep: true},
+              headers: test_api_headers
+          data = JSON.parse(response.body).first['groups'].first['products']
+          data.count.should == 1
+          data.first['id'].should == @product2.id
+        end
+
+        it 'should show only active records if scope is :all' do
+          get "/menus.json",
+              params: {deep: true, scope: :all},
+              headers: test_api_headers
+          data = JSON.parse(response.body).first['groups'].first['products']
+          data.count.should == 2
+        end
+      end
+    end # Depth
   end # Index
 
   describe 'GET /menus/:id' do
@@ -67,6 +144,82 @@ describe MenusController, type: :request, api: true do
 
       response.status.should == 401
     end
+
+    describe 'Depth' do
+      before do
+        @group1 = create(:group, menu: @menu, account: @account)
+        @product1 = create(:product, group: @group1, account: @account, menu: @menu)
+        @product2 = create(:product, group: @group1, account: @account, menu: @menu)
+        @group2 = create(:group, account: @account, menu: @menu)
+        @product3 = create(:product, group: @group2, account: @account, menu: @menu)
+      end
+
+      it 'should return Groups belonging to Menu' do
+        get "/menus/#{@menu.id}.json",
+            params: {deep: true},
+            headers: test_api_headers
+
+        groups_data = JSON.parse(response.body)['groups']
+        groups_data.first['id'].should == @group1.id
+        groups_data.last['id'].should == @group2.id
+      end
+
+      it 'should return Product data as well' do
+        get "/menus/#{@menu.id}.json",
+            params: {deep: true},
+            headers: test_api_headers
+
+        products_data = JSON.parse(response.body)['groups'].first['products']
+        products_data.first['id'].should == @product1.id
+        products_data.last['id'].should == @product2.id
+      end
+
+      describe 'With Inacive associated records' do
+        before do
+          @group2.update(active: false)
+        end
+
+        it 'should show only active records if scope is :active (default)' do
+          get "/menus/#{@menu.id}.json",
+              params: {deep: true},
+              headers: test_api_headers
+          data = JSON.parse(response.body)['groups']
+          data.count.should == 1
+          data.first['id'].should == @group1.id
+        end
+
+        it 'should show only active records if scope is :all' do
+          get "/menus/#{@menu.id}.json",
+              params: {deep: true, scope: :all},
+              headers: test_api_headers
+          data = JSON.parse(response.body)['groups']
+          data.count.should == 2
+        end
+      end
+
+      describe 'With inactive products' do
+        before do
+          @product1.update(active: false)
+        end
+
+        it 'should show only active records if scope is :active (default)' do
+          get "/menus/#{@menu.id}.json",
+              params: {deep: true},
+              headers: test_api_headers
+          data = JSON.parse(response.body)['groups'].first['products']
+          data.count.should == 1
+          data.first['id'].should == @product2.id
+        end
+
+        it 'should show only active records if scope is :all' do
+          get "/menus/#{@menu.id}.json",
+              params: {deep: true, scope: :all},
+              headers: test_api_headers
+          data = JSON.parse(response.body)['groups'].first['products']
+          data.count.should == 2
+        end
+      end
+    end # Depth
   end # Show
 
   describe 'POST /menus' do
@@ -111,6 +264,24 @@ describe MenusController, type: :request, api: true do
     it 'should set @menu.account to @account' do
       post '/menus.json', params: @create_params, headers: test_api_headers
       Menu.last.account.should == @account
+    end
+    context 'Bad Params' do
+      before do
+        @create_params[:menu].delete(:name) # Now they are BAD!!
+        @create_params[:menu][:description] = 'arbitrary'
+      end
+
+      it 'should return an error' do
+        post '/menus.json', params: @create_params, headers: test_api_headers
+        response.body.should == {
+          name: ["can't be blank"]
+        }.to_json
+      end
+
+      it 'should return code ' do
+        post '/menus.json', params: @create_params, headers: test_api_headers
+        response.status.should == 422
+      end
     end
   end # Create
 
@@ -169,6 +340,25 @@ describe MenusController, type: :request, api: true do
 
       response.status.should == 401
     end
+
+    context 'BAD Params' do
+      before do
+        @update_params[:menu].delete(:name) # Now they are BAD!!
+        @update_params[:menu][:description] = 'arbitrary' # Strong Params doesn't like empty params
+      end
+
+      it 'should return an error' do
+        post '/menus.json', params: @update_params, headers: test_api_headers
+        response.body.should == {
+          name: ["can't be blank"]
+        }.to_json
+      end
+
+      it 'should return code 422' do
+        post '/menus.json', params: @update_params, headers: test_api_headers
+        response.status.should == 422
+      end
+    end # Bad Params
   end # Update
 
   describe 'DELETE /menus/:id' do

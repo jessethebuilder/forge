@@ -1,8 +1,13 @@
 class Account < ApplicationRecord
-  has_many :menus
-  has_many :products
-  has_many :groups
-  has_many :orders
-  has_many :customers
-  has_many :credentials 
+  has_many :menus, dependent: :destroy
+  has_many :products, dependent: :destroy
+  has_many :groups, dependent: :destroy
+  has_many :orders, dependent: :destroy
+  has_many :customers, dependent: :destroy
+  has_many :credentials, dependent: :destroy
+  has_many :users, dependent: :destroy
+
+  SCHEMAS = %w|menu group product|
+
+  validates :schema, presence: true, inclusion: {in: SCHEMAS}
 end

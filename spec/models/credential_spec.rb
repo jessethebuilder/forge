@@ -12,6 +12,7 @@ describe Credential, type: :model do
 
   describe 'Associations' do
     it{ should belong_to :account }
+    it{ should belong_to :user }
   end # Associations
 
   describe 'Attributes' do

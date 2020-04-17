@@ -12,6 +12,6 @@ class CreateGroups < ActiveRecord::Migration[6.0]
     end
 
     add_reference(:groups, :account, foreign_key: true)
-    add_reference(:groups, :menu, foreign_key: true)
+    add_reference(:groups, :menu)
   end
 end

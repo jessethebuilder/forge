@@ -1,10 +1,11 @@
 describe Menu, type: :model do
   before do
-    @menu = build(:menu)
+    @account = create(:account)
+    @menu = build(:menu, account: @account)
   end
 
   describe 'Validations' do
-
+    it{ should validate_presence_of :name }
     specify{ association_must_exist(@menu, :account) }
   end # Validations
 
@@ -34,7 +35,16 @@ describe Menu, type: :model do
 
   describe 'Class Methods' do
     before do
-      @model.save!
+      @menu.save!
+    end
+
+    describe 'Scopes' do
+      describe '#active' do
+        it 'should return all active menus' do
+          inactive_meny = create(:menu, active: false, account: @account)
+          Menu.active.should == [@menu]
+        end
+      end
     end
   end # Class Methods
 end

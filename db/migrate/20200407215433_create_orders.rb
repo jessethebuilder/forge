@@ -9,7 +9,7 @@ class CreateOrders < ActiveRecord::Migration[6.0]
     end
 
     add_reference(:orders, :account, foreign_key: true)
-    add_reference(:orders, :menu, foreign_key: true)
-    add_reference(:orders, :customer, foreign_key: true)
+    add_reference(:orders, :menu)
+    add_reference(:orders, :customer)
   end
 end

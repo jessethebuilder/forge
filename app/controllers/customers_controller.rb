@@ -1,4 +1,5 @@
 class CustomersController < ApplicationController
+  before_action :authenticate!
   before_action :set_customer, only: [:show, :update, :destroy, :edit]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
 
