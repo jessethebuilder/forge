@@ -1,42 +1,19 @@
-<%= form_with(model: menu, local: true) do |form| %>
-  <% if menu.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(menu.errors.count, "error") %> prohibited this menu from being saved:</h2>
+<%= form_with(model: menu, local: true, class: 'record_form') do |form| %>
+  <%= show_errors(menu) %>
 
-      <ul>
-        <% menu.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
-
-  <div class="field">
+  <div class="form-group">
     <%= form.label :name %>
-    <%= form.text_field :name %>
+    <%= form.text_field :name, class: 'form-control', required: :true %>
   </div>
 
-  <div class="field">
-    <%= form.label :reference %>
-    <%= form.text_field :reference %>
+  <div class="form-group">
+    <div class="form-check">
+      <%= form.check_box :active, class: 'form-check-input' %>
+      <%= form.label :active, class: 'form-check-label'%>
+    </div>
   </div>
 
-  <div class="field">
-    <%= form.label :data %>
-    <%= form.text_field :data %>
-  </div>
-
-  <div class="field">
-    <%= form.label :active %>
-    <%= form.check_box :active %>
-  </div>
-
-  <div class="field">
-    <%= form.label :account_id_id %>
-    <%= form.text_field :account_id_id %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
+  <div class="form-group">
+    <%= form.submit class: 'btn btn-primary' %>
   </div>
 <% end %>

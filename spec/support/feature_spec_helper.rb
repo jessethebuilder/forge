@@ -12,6 +12,11 @@ module FeatureSpecHelper
     click_button 'Sign in'
   end
 
+  def menu_min
+    visit '/menus/new'
+    fill_in 'Name', with: 'name'
+  end
+
   def product_min
     visit '/products/new'
     fill_in 'Price', with: 13.22

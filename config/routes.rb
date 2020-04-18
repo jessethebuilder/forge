@@ -1,6 +1,8 @@
 def dual_routes_for(*resource_list)
   resource_list.each do |resource_name|
     resources resource_name, only: [:edit, :new], constraints: lambda { |req| req.format == :html }
+    # resources resource_name, only: [:show], constraints: lambda { |req| req.format == :json }
+    # resources resource_name, except: [:edit, :new, :show]
     resources resource_name, except: [:edit, :new]
   end
 end

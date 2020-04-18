@@ -1,34 +1,26 @@
-<%= form_with(model: group, local: true) do |form| %>
-  <% if group.errors.any? %>
-    <div id="error_explanation">
-      <h2><%= pluralize(group.errors.count, "error") %> prohibited this group from being saved:</h2>
+<%= form_with(model: group, local: true, class: 'record_form') do |form| %>
+  <%= show_errors(group) %>
 
-      <ul>
-        <% group.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= form.hidden_field(:menu_id, value: @menu.id) if group.new_record? %>
 
-  <%= form.hidden_field :menu_id, value: group.menu_id || params[:menu_id] %>
-
-  <div class="field">
+  <div class="form-group">
     <%= form.label :name %>
-    <%= form.text_field :name %>
+    <%= form.text_field :name, class: 'form-control', required: :true %>
   </div>
 
-  <div class="field">
+  <div class="form-group">
     <%= form.label :description %>
-    <%= form.text_area :description %>
+    <%= form.text_field :description, class: 'form-control' %>
   </div>
 
-  <div class="field">
-    <%= form.label :active %>
-    <%= form.check_box :active %>
+  <div class="form-group">
+    <div class="form-check">
+      <%= form.check_box :active, class: 'form-check-input' %>
+      <%= form.label :active, class: 'form-check-label'%>
+    </div>
   </div>
 
-  <div class="actions">
-    <%= form.submit %>
+  <div class="form-group">
+    <%= form.submit class: 'btn btn-primary' %>
   </div>
 <% end %>

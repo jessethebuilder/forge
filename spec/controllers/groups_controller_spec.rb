@@ -3,11 +3,12 @@ describe GroupsController, type: :controller do
     setup_controller_spec
     @group = create(:group, account: @account)
     @product = create(:product, group: @group, account: @account)
-  end 
+  end
 
   describe 'INDEX /groups' do
     describe '?scope' do
       before do
+        @account.update(schema: 'group')
         @inactive_group = create(:group, account: @account, active: false)
       end
 

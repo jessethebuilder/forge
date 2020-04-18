@@ -1,6 +1,30 @@
-<h1>Editing Menu</h1>
-
-<%= render 'form', menu: @menu %>
-
-<%= link_to 'Show', @menu %> |
-<%= link_to 'Back', menus_path %>
+<div id="edit_menu">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1>
+          <%= @menu.name %>
+        </h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <%= render 'form', menu: @menu %>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div class="sortable_group">
+          <%= link_to 'New Group', new_group_path(menu_id: @menu.id), class: 'float-right btn btn-secondary' %>
+          <h2>Groups</h2>
+          <%= render partial: 'groups/index', locals: {groups: @menu.groups} %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <%= link_to 'Back', menus_path, class: 'btn btn-warning' %>
+      </div>
+    </div>
+  </div>
+</div>

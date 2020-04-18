@@ -6,5 +6,7 @@ class Group < ApplicationRecord
 
   validates :name, presence: true
 
+  default_scope -> { order(:order) }
+  
   scope :active, -> { where(active: true) }
 end

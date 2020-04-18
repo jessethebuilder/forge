@@ -8,42 +8,49 @@ describe 'Group Features', type: :feature do
 
     describe 'Creating a Group' do
       it 'should create a group with all attributes' do
-        group_min
+        visit '/groups/new'
 
+        fill_in 'Name', with: 'name'
         fill_in 'Description', with: 'description'
         uncheck 'Active'
 
         expect{ click_button 'Create Group' }
               .to change{ Group.count }.by(1)
 
-        group = Group.last
+        group = Group.order(:created_at).last
         group.name.should == 'name'
         group.description.should == 'description'
         group.active.should == false # defaults to true
       end
 
-      it 'should redirect to /groups' do
+      it 'should redirect to /groups if @account.schema is group' do
+        @account.update(schema: 'group')
         group_min
         click_button 'Create Group'
-        page.current_path.should == '/groups'
+        page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
       end
 
-      describe 'Creating a Group from Group Menu' do
+      describe 'Creating a Group from Menu' do
         before do
-          visit "/menus/#{@menu.id}"
+          visit "/menus/#{@menu.id}/edit"
           click_link 'New Group'
 
           fill_in 'Name', with: 'name'
         end
 
-        it 'should set :group if group_id is passed as param' do
+        it 'should create a group' do
+          expect{ click_button 'Create Group' }
+                .to change{ Group.count }.by(1)
+        end
+
+        it 'should set :menu' do
           click_button 'Create Group'
           Group.last.menu.should == @menu
         end
 
-        it 'should redirect_to @menu' do
+        it 'should redirect_to edit @group' do
           click_button 'Create Group'
-          page.current_path.should == "/menus/#{@menu.id}"
+          page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
         end
 
         it 'should save menu_id, if first form submission is unsuccessful' do
@@ -57,7 +64,21 @@ describe 'Group Features', type: :feature do
 
           Group.last.menu.should == @menu
         end
+
+        describe 'Back button' do
+          it 'should direct to menus#edit' do
+            visit "/groups/new"
+            page.should have_link('Back', href: "/menus/#{@menu.id}/edit")
+          end
+        end
       end # From Menu
+
+      describe 'Back button' do
+        it 'should direct to groups#index' do
+          visit "/groups/new"
+          page.should have_link('Back', href: "/groups")
+        end
+      end
     end # Creating
 
     describe 'Updating a Group' do
@@ -72,6 +93,23 @@ describe 'Group Features', type: :feature do
 
         expect{ click_button 'Update Group' }
               .to change{ @group.reload.name }.to(new_name)
+      end
+
+      it 'should redirect to edit @menu if schema is "menu"' do
+        @account.update(schema: 'menu')
+        @menu = create(:menu, groups: [@group], account: @account)
+
+        visit "/groups/#{@group.to_param}/edit"
+        click_button 'Update Group'
+
+        page.current_path.should == "/groups/#{@group.to_param}/edit"
+      end
+
+      describe 'Back button' do
+        it 'should direct to groups#index' do
+          visit "/groups/new"
+          page.should have_link('Back', href: "/groups")
+        end
       end
     end # Updating
   end # As Account User

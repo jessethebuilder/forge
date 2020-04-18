@@ -4,6 +4,7 @@ class MenusController < ApplicationController
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
   before_action :set_depth, only: [:index, :show], if: :json_request?
   before_action :set_scope, only: [:index, :show]
+  before_action :authenticate_schema!, only: [:index], if: :html_request?
 
   def index
     @menus = Menu.send(@scope).where(account_id: current_account.id)
@@ -26,7 +27,7 @@ class MenusController < ApplicationController
 
     respond_to do |format|
       if @menu.save
-        format.html { redirect_to @menu, notice: 'Menu was successfully created.' }
+        format.html { redirect_to edit_menu_path(@menu), notice: 'Menu was successfully created.' }
         format.json { render :show, status: :created, location: @menu }
       else
         format.html { render :new }
@@ -38,7 +39,7 @@ class MenusController < ApplicationController
   def update
     respond_to do |format|
       if @menu.update(menu_params)
-        format.html { redirect_to @menu, notice: 'Menu was successfully updated.' }
+        format.html { redirect_to edit_menu_path(@menu), notice: 'Menu was successfully updated.' }
         format.json { render :show, status: :ok, location: @menu }
       else
         format.html { render :edit }

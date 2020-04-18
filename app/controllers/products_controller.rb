@@ -4,12 +4,13 @@ class ProductsController < ApplicationController
   before_action :set_product, only: [:show, :update, :destroy, :edit]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
   before_action :set_scope, only: [:index, :show]
+  before_action :authenticate_schema!, only: [:index], if: :html_request?
 
   def index
-    @products = Product.send(@scope)
-                       .where(account_id: current_account.id)
-                       .includes(:menu)
-                       .includes(:group)
+      @products = Product.send(@scope)
+                         .where(account_id: current_account.id)
+                         .includes(:menu)
+                         .includes(:group)
   end
 
   def show

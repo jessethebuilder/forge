@@ -7,6 +7,7 @@ describe ProductsController, type: :controller do
   describe 'INDEX /products' do
     describe '?scope' do
       before do
+        @account.update(schema: 'product')
         @inactive_product = create(:product, account: @account, active: false)
       end
 

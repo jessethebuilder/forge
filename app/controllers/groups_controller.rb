@@ -5,6 +5,8 @@ class GroupsController < ApplicationController
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
   before_action :set_depth, only: [:index, :show], if: :json_request?
   before_action :set_scope, only: [:index, :show]
+  before_action :authenticate_schema!, only: [:index], if: :html_request?
+  before_action :set_menu, only: [:show, :edit]
 
   def index
     @groups = Group.send(@scope)
@@ -18,6 +20,7 @@ class GroupsController < ApplicationController
 
   def new
     @group = Group.new
+    set_menu
   end
 
   def edit
@@ -29,7 +32,7 @@ class GroupsController < ApplicationController
 
     respond_to do |format|
       if @group.save
-        format.html { redirect_to group_back_path(@group), notice: 'Group was successfully created.' }
+        format.html { redirect_to edit_group_path(@group), notice: 'Group was successfully created.' }
         format.json { render :show, status: :created, location: @group }
       else
         format.html { render :new }
@@ -41,7 +44,7 @@ class GroupsController < ApplicationController
   def update
     respond_to do |format|
       if @group.update(group_params)
-        format.html { redirect_to group_back_path(@group), notice: 'Group was successfully updated.' }
+        format.html { redirect_to edit_group_path(@group), notice: 'Group was successfully updated.' }
         format.json { render :show, status: :ok, location: @group }
       else
         format.html { render :edit }
@@ -69,5 +72,9 @@ class GroupsController < ApplicationController
   def group_params
     params.require(:group).permit(
       :name, :description, :order, :data, :reference, :active, :menu_id)
+  end
+
+  def set_menu
+    @menu = @group.menu || Menu.find_by(id: params[:menu_id])
   end
 end

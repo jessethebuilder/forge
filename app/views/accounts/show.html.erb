@@ -1,5 +1,5 @@
 <!-- spec this -->
 <div id="account">
   <% schema = current_account.schema %>
-  <%= link_to schema.titlecase, send("#{schema}s_path"), class: 'product_entry' %>
+  <%= link_to schema.pluralize.titlecase, send("#{schema}s_path"), class: 'product_entry' %>
 </div>

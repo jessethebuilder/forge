@@ -1,6 +1,5 @@
 <%= form_with(model: product, local: true) do |form| %>
   <%= render partial: 'layouts/partials/errors', locals: {record: product} %>
-
   <%= form.hidden_field :group_id, value: product.group_id || params[:group_id] %>
 
   <div class="field">

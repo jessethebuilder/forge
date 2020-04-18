@@ -2,3 +2,4 @@ en:
   errors:
     no_auth:
       resource: 'This Account is not authorized to access that %{resource_type}.'
+      path: 'You have selected an invalid path for this account type.'

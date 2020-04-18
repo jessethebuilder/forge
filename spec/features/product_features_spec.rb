@@ -2,8 +2,7 @@ describe 'Product Features', type: :feature do
   context 'As Account User' do
     before do
       setup_feature_spec
-      @menu = create(:menu, account: @account)
-      @group = create(:group, menu: @menu, account: @account)
+      @group = create(:group, account: @account)
     end
 
     describe 'Creating a Product' do
@@ -23,7 +22,8 @@ describe 'Product Features', type: :feature do
         product.active.should == false # defaults to true
       end
 
-      it 'should redirect to /products' do
+      it 'should redirect to /products if @account.schema is "product"' do
+        @account.update(schema: 'product')
         product_min
         click_button 'Create Product'
         page.current_path.should == '/products'
@@ -31,21 +31,26 @@ describe 'Product Features', type: :feature do
 
       describe 'Creating a Product from Group' do
         before do
-          visit "/groups/#{@group.id}"
+          visit "/groups/#{@group.id}/edit"
           click_link 'New Product'
 
-          fill_in 'Price', with: 13.22
           fill_in 'Name', with: 'name'
+          fill_in 'Price', with: 11.33
         end
 
-        it 'should set :group if group_id is passed as param' do
+        it 'should create a group' do
+          expect{ click_button 'Create Product' }
+                .to change{ Product.count }.by(1)
+        end
+
+        it 'should set :group' do
           click_button 'Create Product'
           Product.last.group.should == @group
         end
 
-        it 'should redirect_to @group' do
+        it 'should redirect_to edit @group' do
           click_button 'Create Product'
-          page.current_path.should == "/groups/#{@group.id}"
+          page.current_path.should == "/groups/#{@group.id}/edit"
         end
 
         it 'should save group_id, if first form submission is unsuccessful' do
@@ -59,7 +64,7 @@ describe 'Product Features', type: :feature do
 
           Product.last.group.should == @group
         end
-      end # From Menu
+      end # From Group
     end # Creating
 
     describe 'Updating a Product' do
@@ -74,6 +79,21 @@ describe 'Product Features', type: :feature do
 
         expect{ click_button 'Update Product' }
               .to change{ @product.reload.name }.to(new_name)
+      end
+
+      it 'should redirect to edit @group if schema is "group"' do
+        @product.update(group: @group)
+        @account.update(schema: 'group')
+        visit "/products/#{@product.to_param}/edit"
+        click_button 'Update Product'
+        page.current_path.should == "/groups/#{@group.to_param}/edit"
+      end
+
+      it 'should redirect_to products if @account.schema = "product"' do
+        @account.update(schema: 'product')
+        visit "/products/#{@product.to_param}/edit"
+        click_button 'Update Product'
+        page.current_path.should == '/products'
       end
     end # Updating
   end # As Account User

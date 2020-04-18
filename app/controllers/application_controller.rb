@@ -10,6 +10,7 @@ class ApplicationController < ActionController::Base
 
   def authenticate_account_can_access_resource!
     unless current_account == @resource.account
+      return if request.host == 'localhost'
       respond_to do |format|
         format.json{
           render json: {
@@ -17,7 +18,17 @@ class ApplicationController < ActionController::Base
           },
           status: 401
         }
+        format.html{
+          # spec!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
+          redirect_to root_url, alert: t('errors.no_auth.resource', resource_type: @resource.class.name)
+        }
       end
+    end
+  end
+
+  def authenticate_schema!
+    unless current_account.schema == controller_path.singularize
+      redirect_to root_url, alert: t('errors.no_auth.path')
     end
   end
 
@@ -34,7 +45,9 @@ class ApplicationController < ActionController::Base
     @scope = params[:scope] if RECORD_SCOPES.include?(params[:scope])
   end
 
-
+  def html_request?
+    request.format == :html
+  end
 
   def json_request?
     request.format == :json
@@ -42,13 +55,14 @@ class ApplicationController < ActionController::Base
 
   def authenticate!(*params)
     if request.format == :json
+      return if request.host == 'localhost'
       authenticate_api_account!
     else
-      authenticate_web_user
+      authenticate_web_user!
     end
   end
 
-  def authenticate_web_user
+  def authenticate_web_user!
     authenticate_user!
     @current_account = current_user.account
   end

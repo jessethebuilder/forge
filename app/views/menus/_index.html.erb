@@ -1,0 +1,21 @@
+<div class="record_table">
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      <% menus.each do |menu| %>
+        <tr>
+          <td><%= menu.id %></td>
+          <td><%= menu.name %></td>
+          <td>
+            <%= link_to 'Edit', edit_menu_path(menu), class: 'btn btn-primary' %>
+          </td>
+      <% end %>
+    </tbody>
+  </table>
+</div>
