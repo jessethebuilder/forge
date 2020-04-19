@@ -1,28 +1,31 @@
 <%= form_with(model: product, local: true) do |form| %>
-  <%= render partial: 'layouts/partials/errors', locals: {record: product} %>
-  <%= form.hidden_field :group_id, value: product.group_id || params[:group_id] %>
+  <%= show_errors(product) %>
 
-  <div class="field">
+  <%= form.hidden_field :group_id, value: product.group_id %>
+
+  <div class="form_group">
     <%= form.label :name %>
-    <%= form.text_field :name %>
+    <%= form.text_field :name, class: 'form-control', required: true %>
   </div>
 
-  <div class="field">
+  <div class="form_group">
     <%= form.label :price %>
-    <%= form.text_field :price %>
+    <%= form.text_field :price, class: 'form-control', required: true %>
   </div>
 
-  <div class="field">
+  <div class="form_group">
     <%= form.label :description %>
-    <%= form.text_area :description %>
+    <%= form.text_area :description, class: 'form-control' %>
   </div>
 
-  <div class="field">
-    <%= form.label :active %>
-    <%= form.check_box :active %>
+  <div class="form-group">
+    <div class="form-check">
+      <%= form.check_box :active, class: 'form-check-input' %>
+      <%= form.label :active, class: 'form-check-label'%>
+    </div>
   </div>
 
-  <div class="actions">
-    <%= form.submit %>
+  <div class="form_group">
+    <%= form.submit class: 'btn btn-primary form-control' %>
   </div>
 <% end %>

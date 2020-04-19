@@ -101,7 +101,7 @@ describe 'Product Requests', type: :request, api: true do
 
     it 'should return Product data' do
       post '/products.json', params: @create_params, headers: test_api_headers
-      created_product = Product.last
+      created_product = Product.order(created_at: :desc).first
 
       response.body.should == {
         id: created_product.id,
@@ -123,25 +123,25 @@ describe 'Product Requests', type: :request, api: true do
       new_menu = create(:menu, account: @account)
       @create_params[:product][:menu_id] = new_menu.id
       post '/products.json', params: @create_params, headers: test_api_headers
-      Product.last.menu.should == new_menu
+      Product.order(created_at: :desc).first.menu.should == new_menu
     end
 
     it 'should set group_id' do
       new_group = create(:group, account: @account)
       @create_params[:product][:group_id] = new_group.id
       post '/products.json', params: @create_params, headers: test_api_headers
-      Product.last.group.should == new_group
+      Product.order(created_at: :desc).first.group.should == new_group
     end
 
     it 'should save :data' do
       @create_params[:product][:data] = {hello: 'world'}.to_json
       post '/products.json', params: @create_params, headers: test_api_headers
-      Product.last.data.should == {hello: 'world'}.to_json
+      Product.order(created_at: :desc).first.data.should == {hello: 'world'}.to_json
     end
 
     it 'should set @product.account to @account' do
       post '/products.json', params: @create_params, headers: test_api_headers
-      Product.last.account.should == @account
+      Product.order(created_at: :desc).first.account.should == @account
     end
 
     context 'Bad Params' do

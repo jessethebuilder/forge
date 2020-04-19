@@ -13,6 +13,8 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
+  default_scope -> { order(:order) }
+
   def product_belongs_to_group
     return unless group
     errors.add(:group, 'does not belong to this account') unless account == group.account
