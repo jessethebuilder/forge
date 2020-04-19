@@ -4,8 +4,6 @@ describe Account, type: :model do
   end
 
   describe 'Validations' do
-    it{ should validate_presence_of :schema }
-    it{ should validate_inclusion_of(:schema).in_array(Account::SCHEMAS) }
   end # Validations
 
   describe 'Associations' do

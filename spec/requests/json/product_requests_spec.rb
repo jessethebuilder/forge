@@ -3,8 +3,8 @@ describe 'Product Requests', type: :request, api: true do
     @account = create(:account)
     @credential = create(:credential, account: @account)
 
-    @menu = create(:menu)
-    @group = create(:group)
+    @menu = create(:menu, account: @account)
+    @group = create(:group, account: @account)
     @product = create(:product, account: @account, menu: @menu, group: @group)
   end
 
@@ -120,14 +120,14 @@ describe 'Product Requests', type: :request, api: true do
     end
 
     it 'should set menu_id' do
-      new_menu = create(:menu)
+      new_menu = create(:menu, account: @account)
       @create_params[:product][:menu_id] = new_menu.id
       post '/products.json', params: @create_params, headers: test_api_headers
       Product.last.menu.should == new_menu
     end
 
     it 'should set group_id' do
-      new_group = create(:group)
+      new_group = create(:group, account: @account)
       @create_params[:product][:group_id] = new_group.id
       post '/products.json', params: @create_params, headers: test_api_headers
       Product.last.group.should == new_group

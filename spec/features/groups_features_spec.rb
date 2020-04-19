@@ -30,62 +30,51 @@ describe 'Group Features', type: :feature do
         page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
       end
 
-      describe 'Creating a Group from Menu' do
-        before do
+      before do
+        visit "/menus/#{@menu.id}/edit"
+        click_link 'New Group'
+
+        fill_in 'Name', with: 'name'
+      end
+
+      it 'should create a group' do
+        expect{ click_button 'Create Group' }
+              .to change{ Group.count }.by(1)
+      end
+
+      it 'should set :menu' do
+        click_button 'Create Group'
+        Group.last.menu.should == @menu
+      end
+
+      it 'should redirect_to edit @group' do
+        click_button 'Create Group'
+        page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
+      end
+
+      it 'should save menu_id, if first form submission is unsuccessful' do
+        fill_in 'Name', with: ''
+        click_button 'Create Group'
+        # form fails to validate
+        fill_in 'Name', with: 'A Name'
+
+        expect{ click_button 'Create Group' }
+              .to change{ Group.count }.by(1)
+
+        Group.last.menu.should == @menu
+      end
+
+      describe 'Back button' do
+        it 'should direct to menus#edit' do
           visit "/menus/#{@menu.id}/edit"
           click_link 'New Group'
 
-          fill_in 'Name', with: 'name'
-        end
-
-        it 'should create a group' do
-          expect{ click_button 'Create Group' }
-                .to change{ Group.count }.by(1)
-        end
-
-        it 'should set :menu' do
-          click_button 'Create Group'
-          Group.last.menu.should == @menu
-        end
-
-        it 'should redirect_to edit @group' do
-          click_button 'Create Group'
-          page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
-        end
-
-        it 'should save menu_id, if first form submission is unsuccessful' do
-          fill_in 'Name', with: ''
-          click_button 'Create Group'
-          # form fails to validate
-          fill_in 'Name', with: 'A Name'
-
-          expect{ click_button 'Create Group' }
-                .to change{ Group.count }.by(1)
-
-          Group.last.menu.should == @menu
-        end
-
-        describe 'Back button' do
-          it 'should direct to menus#edit' do
-            visit "/groups/new"
-            page.should have_link('Back', href: "/menus/#{@menu.id}/edit")
-          end
-        end
-      end # From Menu
-
-      describe 'Back button' do
-        it 'should direct to groups#index' do
-          visit "/groups/new"
-          page.should have_link('Back', href: "/groups")
+          page.should have_link(@menu.name, href: "/menus/#{@menu.id}/edit")
         end
       end
     end # Creating
 
     describe 'Updating a Group' do
-      before do
-        @group = create(:group, account: @account)
-      end
-
       it 'should change attributes' do
         new_name = @group.name + " something else"
         visit "/groups/#{@group.id}/edit"
@@ -95,10 +84,7 @@ describe 'Group Features', type: :feature do
               .to change{ @group.reload.name }.to(new_name)
       end
 
-      it 'should redirect to edit @menu if schema is "menu"' do
-        @account.update(schema: 'menu')
-        @menu = create(:menu, groups: [@group], account: @account)
-
+      it 'should redirect to edit @group' do
         visit "/groups/#{@group.to_param}/edit"
         click_button 'Update Group'
 
@@ -106,9 +92,9 @@ describe 'Group Features', type: :feature do
       end
 
       describe 'Back button' do
-        it 'should direct to groups#index' do
-          visit "/groups/new"
-          page.should have_link('Back', href: "/groups")
+        it 'should direct to edit @menu' do
+          visit "/groups/#{@group.to_param}/edit"
+          page.should have_link(@menu.name, href: "/menus/#{@menu.id}/edit")
         end
       end
     end # Updating

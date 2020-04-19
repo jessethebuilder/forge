@@ -3,7 +3,6 @@ describe 'Group Requests', type: :request, api: true do
     @account = create(:account)
     @credential = create(:credential, account: @account)
     @group_name = Faker::Lorem.word
-    @group_name = Faker::Lorem.word
     @menu = create(:menu, account: @account)
     @group = create(:group, account: @account, name: @group_name, menu: @menu)
   end
@@ -176,7 +175,7 @@ describe 'Group Requests', type: :request, api: true do
 
     it 'should return Group data' do
       post '/groups.json', params: @create_params, headers: test_api_headers
-      created_group = Group.last
+      created_group = Group.order(created_at: :desc).first
 
       response.body.should == {
         id: created_group.id,
@@ -193,17 +192,17 @@ describe 'Group Requests', type: :request, api: true do
     end
 
     it 'should accept menu_id as a param' do
-      menu = create(:menu)
+      menu = create(:menu, account: @account)
       post '/groups.json',
            params: {group: attributes_for(:group, menu_id: menu.id)},
            headers: test_api_headers
-      Group.last.menu.should == menu
+      Group.order(created_at: :desc).first.menu.should == menu
     end
 
     it 'should save :data' do
       @create_params[:group][:data] = {hello: 'world'}.to_json
       post '/groups.json', params: @create_params, headers: test_api_headers
-      Group.last.data.should == {hello: 'world'}.to_json
+      Group.order(created_at: :desc).first.data.should == {hello: 'world'}.to_json
     end
 
     it 'should set @group.account to @account' do

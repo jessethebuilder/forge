@@ -9,6 +9,18 @@ describe Product, type: :model do
     it{ should validate_numericality_of(:price).is_greater_than_or_equal_to(0) }
 
     specify{ association_must_exist(@product, :account) }
+
+    specify '@product.group must belong to account' do
+      @product.group = create(:group)
+      @product.valid?.should == false
+      @product.errors[:group].should == ['does not belong to this account']
+    end
+
+    specify '@product.menu must belong to accont' do
+      @product.menu = create(:menu)
+      @product.valid?.should == false
+      @product.errors[:menu].should == ['does not belong to this account']
+    end
   end # Validations
 
   describe 'Associations' do

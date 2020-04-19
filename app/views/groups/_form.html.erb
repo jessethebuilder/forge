@@ -1,7 +1,7 @@
 <%= form_with(model: group, local: true, class: 'record_form') do |form| %>
   <%= show_errors(group) %>
 
-  <%= form.hidden_field(:menu_id, value: @menu.id) if group.new_record? %>
+  <%= form.hidden_field(:menu_id, value: @group.menu.id) %>
 
   <div class="form-group">
     <%= form.label :name %>

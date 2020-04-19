@@ -19,11 +19,11 @@ describe 'Menu Features', type: :feature do
         menu.active.should == false # defaults to true
       end
 
-      it 'should redirect to /menus if @account.schema' do
-        @account.update(schema: 'menu')
+      it 'should redirect to menus#edit' do
         menu_min
         click_button 'Create Menu'
-        page.current_path.should == '/menus'
+        menu = Menu.order(created_at: :desc).first
+        page.current_path.should == "/menus/#{menu.id}/edit"
       end
     end # Creating
 
@@ -40,16 +40,9 @@ describe 'Menu Features', type: :feature do
         expect{ click_button 'Update Menu' }
               .to change{ @menu.reload.name }.to(new_name)
       end
-
-      it 'should redirect_to menus if @account.schema = "menu"' do
-        @account.update(schema: 'menu')
-        visit "/menus/#{@menu.to_param}/edit"
-        click_button 'Update Menu'
-        page.current_path.should == '/menus'
-      end
     end # Updating
   end # As Account User
- 
+
   context 'Without Login' do
     it 'should not redirect all to login' do
       visit '/menus'

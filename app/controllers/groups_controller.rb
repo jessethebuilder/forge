@@ -5,8 +5,7 @@ class GroupsController < ApplicationController
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
   before_action :set_depth, only: [:index, :show], if: :json_request?
   before_action :set_scope, only: [:index, :show]
-  before_action :authenticate_schema!, only: [:index], if: :html_request?
-  before_action :set_menu, only: [:show, :edit]
+  # before_action :set_menu, only: [:show, :edit, :update, :destroy]
 
   def index
     @groups = Group.send(@scope)
@@ -19,11 +18,12 @@ class GroupsController < ApplicationController
   end
 
   def new
-    @group = Group.new
-    set_menu
+    menu = Menu.find(session[:now_editing_menu_id])
+    @group = Group.new(menu: menu)
   end
 
   def edit
+    session[:now_editing_group_id] = @group.id if html_request?
   end
 
   def create
@@ -57,7 +57,7 @@ class GroupsController < ApplicationController
     @group.products.destroy_all if params[:destroy_products]
     @group.destroy
     respond_to do |format|
-      format.html { redirect_to group_back_path(@group), notice: 'Group was successfully destroyed.' }
+      format.html { redirect_to edit_menu_path(@menu), notice: 'Group was successfully destroyed.' }
       format.json { head :no_content }
     end
   end
@@ -72,9 +72,5 @@ class GroupsController < ApplicationController
   def group_params
     params.require(:group).permit(
       :name, :description, :order, :data, :reference, :active, :menu_id)
-  end
-
-  def set_menu
-    @menu = @group.menu || Menu.find_by(id: params[:menu_id])
   end
 end

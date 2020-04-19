@@ -8,7 +8,6 @@ describe GroupsController, type: :controller do
   describe 'INDEX /groups' do
     describe '?scope' do
       before do
-        @account.update(schema: 'group')
         @inactive_group = create(:group, account: @account, active: false)
       end
 
@@ -28,21 +27,4 @@ describe GroupsController, type: :controller do
       end
     end
   end
-
-  describe 'DELETE /groups/:id' do
-    it 'should delete a group' do
-      expect{ delete :destroy, params: {id: @group.id} }
-            .to change{ Group.count }.by(-1)
-    end
-
-    specify 'it should NOT delete Products in Group' do
-      expect{ delete :destroy, params: {id: @group.id} }
-            .not_to change{ Product.count }
-    end
-
-    it 'should delete products if destroy_products is passed along as a param' do
-      expect{ delete :destroy, params: {id: @group.id, destroy_products: true} }
-            .to change{ Product.count }.by(-1)
-    end
-  end # Destroy
 end

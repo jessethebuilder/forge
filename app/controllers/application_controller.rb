@@ -26,12 +26,6 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def authenticate_schema!
-    unless current_account.schema == controller_path.singularize
-      redirect_to root_url, alert: t('errors.no_auth.path')
-    end
-  end
-
   def current_account
     @current_account
   end

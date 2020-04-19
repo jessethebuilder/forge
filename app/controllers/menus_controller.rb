@@ -4,7 +4,6 @@ class MenusController < ApplicationController
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
   before_action :set_depth, only: [:index, :show], if: :json_request?
   before_action :set_scope, only: [:index, :show]
-  before_action :authenticate_schema!, only: [:index], if: :html_request?
 
   def index
     @menus = Menu.send(@scope).where(account_id: current_account.id)
@@ -19,6 +18,7 @@ class MenusController < ApplicationController
   end
 
   def edit
+    session[:now_editing_menu_id] = @menu.id if html_request?
   end
 
   def create

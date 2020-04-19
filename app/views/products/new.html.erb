@@ -2,4 +2,4 @@
 
 <%= render 'form', product: @product %>
 
-<%= link_to 'Back', product_back_path(@product) %>
+<%= link_to @product.group.name, edit_group_path(@product.group.id) %>

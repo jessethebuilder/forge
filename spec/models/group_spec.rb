@@ -13,6 +13,13 @@ describe Group, type: :model do
     it{ should belong_to :menu }
 
     it{ should have_many :products }
+
+
+    specify '@product.menu must belong to accont' do
+      @group.menu = create(:menu)
+      @group.valid?.should == false
+      @group.errors[:menu].should == ['does not belong to this account']
+    end
   end # Associations
 
   describe 'Attributes' do

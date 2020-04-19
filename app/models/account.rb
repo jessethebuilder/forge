@@ -6,8 +6,4 @@ class Account < ApplicationRecord
   has_many :customers, dependent: :destroy
   has_many :credentials, dependent: :destroy
   has_many :users, dependent: :destroy
-
-  SCHEMAS = %w|menu group product|
-
-  validates :schema, presence: true, inclusion: {in: SCHEMAS}
 end

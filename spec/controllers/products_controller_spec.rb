@@ -1,5 +1,5 @@
 describe ProductsController, type: :controller do
-  before do
+  before do 
     setup_controller_spec
     @product = create(:product, account: @account)
   end
@@ -27,11 +27,4 @@ describe ProductsController, type: :controller do
       end
     end
   end
-
-  describe 'DELETE /products/:id' do
-    it 'should delete a product' do
-      expect{ delete :destroy, params: {id: @product.id} }
-            .to change{ Product.count }.by(-1)
-    end
-  end # Destroy
 end

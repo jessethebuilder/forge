@@ -1,4 +1,6 @@
+<% @group = @product.group %>
 <h1>Editing Product</h1>
 
 <%= render 'form', product: @product %>
-<%= link_to 'Back', product_back_path(@product) %>
+<%= link_to @group.name, edit_group_path(@group ) %>
+ 
