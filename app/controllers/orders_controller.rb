@@ -2,12 +2,23 @@ class OrdersController < ApplicationController
   before_action :authenticate!
   before_action :set_order, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
+  before_action :set_scope, only: [:index]
+
+  respond_to :html, :json, :js
 
   def index
-    @orders = Order.where(account_id: current_account.id).includes(:order_items)
+    @orders = Order.where(account_id: current_account.id)
+                   .send(@scope)
+                   .order(created_at: :desc)
+                   .includes(:order_items)
+  end
+
+  def update_seen
+    @order.update(seen: true) unless @order.seen?
   end
 
   def show
+    update_seen if html_request?
   end
 
   # Doing orders from an HTML admin panel is an intereting idea. But not for now.
@@ -37,10 +48,10 @@ class OrdersController < ApplicationController
   def update
     respond_to do |format|
       if @order.update(order_params)
-        # format.html { redirect_to @order, notice: 'Order was successfully updated.' }
+        format.html { redirect_to '/orders' }
         format.json { render :show, status: :ok, location: @order }
       else
-        # format.html { render :edit }
+        format.html { render :edit }
         format.json { render json: @order.errors, status: :unprocessable_entity }
       end
     end
@@ -68,6 +79,7 @@ class OrdersController < ApplicationController
       :menu_id,
       :reference,
       :data,
+      :active,
       items: [:product_id, :note, :amount]
     )
     p[:order_items_attributes] = p[:items] if p[:items]

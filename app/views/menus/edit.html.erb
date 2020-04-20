@@ -14,7 +14,7 @@
     </div>
     <div class="row">
       <div class="col-12">
-        <div class="sortable_group">
+        <div class="sortable_group" id="groups">
           <%= link_to 'New Group', new_group_path(menu_id: @menu.id), class: 'float-right btn btn-secondary' %>
           <h2>Groups</h2>
           <%= render partial: 'groups/index', locals: {groups: @menu.groups} %>

@@ -26,7 +26,7 @@ function setupRecordSorter(){
 
 function setupRecordActivators(){
   // When an active checkbox is clicked, set the Record's active attribute.
-  $(".active").change(function(event){
+  $(".stortable .active").change(function(event){
     let target = $(event.target);
     let table = target.closest("table");
     let sortable_type = table.data("sortable-type");

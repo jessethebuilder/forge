@@ -21,7 +21,7 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'figaro'
 
-gem 'devise' 
+gem 'devise'
 
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
@@ -41,7 +41,6 @@ group :test do
   gem 'chromedriver-helper'
   gem 'capybara'
   gem 'factory_bot_rails'
-  # gem 'poltergeist'
   gem 'shoulda'
   gem 'webmock'
   gem 'guard-rspec'

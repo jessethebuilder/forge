@@ -1,2 +1,2 @@
-require('./new_product')
-require('./record_editing')
+require('./menus_groups_and_products')
+require('./orders')

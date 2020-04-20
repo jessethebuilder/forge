@@ -20,10 +20,6 @@ describe Account, type: :model do
     specify ':data defaults to and empty Hash' do
       @account.data.should == {}
     end
-
-    specify ':schema defaults to "menu"' do
-      @account.schema.should == 'menu'
-    end
   end # Attributes
 
   describe 'Behaviors' do

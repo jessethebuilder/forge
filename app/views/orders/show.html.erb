@@ -1,24 +1,38 @@
-<p id="notice"><%= notice %></p>
-
-<p>
-  <strong>Data:</strong>
-  <%= @order.data %>
-</p>
-
-<p>
-  <strong>Account:</strong>
-  <%= @order.account_id_id %>
-</p>
-
-<p>
-  <strong>Customer:</strong>
-  <%= @order.customer_id_id %>
-</p>
-
-<p>
-  <strong>Menu:</strong>
-  <%= @order.menu_id_id %>
-</p>
-
-<%= link_to 'Edit', edit_order_path(@order) %> |
-<%= link_to 'Back', orders_path %>
+<div id="order">
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <h1>Order: <%= @order.menu.try(:name) || current_account.menus.active.last.name %></h1>
+        <div id="note">
+          <strong>NOTES: </strong><%= @order.note %>
+        </div>
+        <div id="order_items">
+          <h2>Items</h2>
+          <%= render partial: 'order_items/index',
+                     locals: {order_items: @order.order_items} %>
+        </div>
+      </div>
+    </div>
+    <% if @order.active? %>
+      <div class="row">
+        <div class="col-sm-12">
+          <div class="form-group">
+            <%= form_with(model: @order, local: true) do |form| %>
+              <%= form.hidden_field :active, value: false %>
+              <div class="form-group">
+                <%= form.submit 'Complete Order', class: 'btn btn-primary' %>
+              </div>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="form-group">
+          <%= link_to 'Orders', orders_path, class: 'btn btn-warning' %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

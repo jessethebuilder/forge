@@ -4,14 +4,24 @@
     <title>The Forge Web</title>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <%= stylesheet_link_tag '//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/le-frog/jquery-ui.min.css' %>
     <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track': 'reload' %>
     <%= javascript_pack_tag 'application', 'data-turbolinks-track': 'reload' %>
   </head>
-
   <body>
     <%= render partial: 'layouts/partials/nav' %>
     <%= render partial: 'layouts/partials/flash' %>
     <%= yield %>
+    <script>
+      <% if current_account %>
+        $(document).on('turbolinks:load', function(){
+          startOrderChannel('<%= current_account.id %>');
+        });
+      <% end %>
+    </script>
+    <% if Rails.env.development? %>
+      <%= console %>
+    <% end %>
   </body>
 </html>

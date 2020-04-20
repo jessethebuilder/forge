@@ -23,13 +23,6 @@ describe 'Group Features', type: :feature do
         group.active.should == false # defaults to true
       end
 
-      it 'should redirect to /groups if @account.schema is group' do
-        @account.update(schema: 'group')
-        group_min
-        click_button 'Create Group'
-        page.current_path.should == "/groups/#{Group.order(:created_at).last.to_param}/edit"
-      end
-
       before do
         visit "/menus/#{@menu.id}/edit"
         click_link 'New Group'
@@ -99,7 +92,7 @@ describe 'Group Features', type: :feature do
       end
     end # Updating
   end # As Account User
-
+1
   context 'Without Login' do
     it 'should not redirect all to login' do
       visit '/groups'

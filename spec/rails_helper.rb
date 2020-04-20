@@ -14,13 +14,15 @@ rescue ActiveRecord::PendingMigrationError => e
   puts e.to_s.strip
   exit 1
 end
+
+
 RSpec.configure do |config|
   config.include(ModelSpecHelper, type: :model)
   config.include(RequestSpecHelper, type: :request)
   config.include(FeatureSpecHelper, type: :feature)
   config.include(ControllerSpecHelper, type: :controller)
   config.include Devise::Test::ControllerHelpers, :type => :controller
-  
+
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   # If you're not using ActiveRecord, or you'd prefer not to run each of your

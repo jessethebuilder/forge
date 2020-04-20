@@ -18,7 +18,6 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   create_table "accounts", force: :cascade do |t|
     t.boolean "active", default: true
     t.jsonb "data", default: {}
-    t.string "schema", default: "menu"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -89,6 +88,8 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.jsonb "data", default: {}
     t.string "reference"
     t.string "note"
+    t.boolean "active", default: true
+    t.boolean "seen", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"

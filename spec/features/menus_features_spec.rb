@@ -34,13 +34,41 @@ describe 'Menu Features', type: :feature do
 
       it 'should change attributes' do
         new_name = @menu.name + " something else"
-        visit "/menus/#{@menu.id}/edit"
+        visit "/menus/#{@menu.to_param}/edit"
         fill_in 'Name', with: new_name
 
         expect{ click_button 'Update Menu' }
               .to change{ @menu.reload.name }.to(new_name)
       end
     end # Updating
+
+    describe 'Editing Groups', js: false do
+      before do
+        @group = create(:group, menu: @menu, account: @account)
+      end
+
+      describe 'Active?' do
+        it 'should deactive on check' do
+          skip 'Headles not set up right'
+          # Switch js: to true above to get this to work.
+          visit "/menus/#{@menu.to_param}/edit"
+          within('#groups') do
+            expect{ find("#group_#{@group.id}_active").check }
+                  .to change{ @group.reload.active }.from(true).to(false)
+          end
+        end
+
+        it 'should re-active on check' do
+          skip 'Headles not set up right'
+          @group.update(active: false)
+          visit "/menus/#{@menu.to_param}/edit"
+          within('#groups') do
+            expect{ find("#group_#{@group.id}_active").check }
+                  .to change{ @group.reload.active }.from(false).to(true)
+          end
+        end
+      end
+    end
   end # As Account User
 
   context 'Without Login' do

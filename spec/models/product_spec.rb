@@ -51,5 +51,14 @@ describe Product, type: :model do
     before do
       @product.save!
     end
+
+    describe 'Scopes' do
+      describe '#active' do
+        it 'should return all active products' do
+          inactive_product = create(:product, active: false, account: @product.account)
+          Product.active.should == [@product]
+        end
+      end
+    end
   end # Class Methods
 end

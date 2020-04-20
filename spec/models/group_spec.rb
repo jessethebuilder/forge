@@ -42,5 +42,14 @@ describe Group, type: :model do
     before do
       @group.save!
     end
+
+    describe 'Scopes' do
+      describe '#active' do
+        it 'should return all active menus' do
+          inactive_group = create(:group, active: false, account: @group.account)
+          Group.active.should == [@group]
+        end
+      end
+    end
   end # Class Methods
 end

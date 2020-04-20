@@ -1,0 +1,18 @@
+<% row_class = order.seen? ? 'seen' : 'unseen' %>
+<% row_class = 'complete' if order.complete? %>
+
+<%= content_tag :tr, data: {id: order.id}, class: row_class do %>
+  <td>
+    <%= form_with(model: order, local: true, index: order.id) do |form| %>
+      <div class="form-check">
+        <%= form.check_box :active, class: 'form-check-input activator' %>
+      </div>
+    <% end %>
+  </td>
+  <td><%= order.id %></td>
+  <td><%= number_to_currency(order.total) %></td>
+  <td><%= order.created_at %></td>
+  <td>
+    <%= link_to 'View Order', order_path(order), class: 'btn btn-sm btn-primary' %>
+  </td>
+<% end %>

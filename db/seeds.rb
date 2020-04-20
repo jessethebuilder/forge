@@ -1,22 +1,41 @@
 Account.destroy_all
 
-a = Account.create
-u = User.create(email: 'test@test.com', password: ENV.fetch('PASSWORD'), account: a)
-c = Credential.create(user: u, account: a, username: 'jeff')
+a = Account.create!
+u = User.create!(email: 'test@test.com', password: ENV.fetch('PASSWORD'), account: a)
+c = Credential.create!(user: u, account: a, username: 'jeff')
 
 1.times do
-  m = Menu.create(account: a, name: Faker::Lorem.word)
+  m = Menu.create!(account: a, name: Faker::Games::Fallout.location)
 
   # Random.rand(0..3).times do
   3.times do
-    g = Group.create(account: a, menu: m, name: Faker::Lorem.word)
-    # g = Group.create(account: a, name: Faker::Lorem.word)
+    g = Group.create!(account: a, menu: m, name: Faker::Commerce.department)
 
-    # Random.rand(0..3).times do
     3.times do
-      p = Product.create(account: a, menu: m, group: g)
-      # p = Product.create(account: a, menu: m)
-      # p = Product.create(account: a)
+      p = Product.create!(
+        name: Faker::Food.dish,
+        account: a,
+        menu: m,
+        group: g,
+        price: Random.rand(2..109).round(2)
+      )
     end
+  end
+end
+
+3.times do
+  c = Customer.create!(account: a)
+end
+
+4.times do
+  o = Order.create!(account: a, customer: Customer.all.sample, note: Faker::Lorem.sentence)
+  4.times do
+    product = Product.all.sample
+    OrderItem.create!(
+      product: product,
+      order: o,
+      amount: product.price,
+      note: Faker::Lorem.sentence
+    )
   end
 end

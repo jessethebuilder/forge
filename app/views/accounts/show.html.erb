@@ -1,5 +1,10 @@
-<!-- spec this -->
 <div id="account">
-  <% schema = current_account.schema %>
-  <%= link_to schema.pluralize.titlecase, send("#{schema}s_path"), class: 'product_entry' %>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <%= link_to 'Menus', menus_path %>
+        <%= link_to 'Orders', orders_path %>
+      </div>
+    </div>
+  </div>
 </div>

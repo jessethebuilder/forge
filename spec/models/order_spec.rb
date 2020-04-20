@@ -18,6 +18,13 @@ describe Order, type: :model do
   end # Associations
 
   describe 'Attributes' do
+    specify ':active defaults to true' do
+      @order.active.should == true
+    end
+
+    specify ':seen defaults to false' do
+      @order.seen.should == false
+    end
   end # Attributes
 
   describe 'Behaviors' do
@@ -46,6 +53,15 @@ describe Order, type: :model do
         create(:refund, order: @order, amount: -10)
 
         @order.refund_total.should == -20
+      end
+    end
+
+    describe '#complete?' do
+      it 'should return true if a positive transation exists matching :total' do
+        @order.save!
+        create(:order_item, order: @order)
+        expect{ create(:transaction, order: @order, amount: @order.total) }
+              .to change{ @order.reload.complete? }.from(false).to(true)
       end
     end
   end # Methods

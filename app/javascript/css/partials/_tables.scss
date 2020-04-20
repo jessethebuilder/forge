@@ -1,0 +1,14 @@
+table{
+  tr{
+    &.inactive{
+      background: $inactive_background;
+    }
+    &.unseen{
+      background-color: $primary_background;
+    }
+    &.seen{}
+    &.complete{
+      background: $inactive_background;
+    }
+  }
+}
