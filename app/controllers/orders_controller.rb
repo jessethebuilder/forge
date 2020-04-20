@@ -21,6 +21,10 @@ class OrdersController < ApplicationController
     update_seen if html_request?
   end
 
+  def temp
+    Order.create(account: current_account)
+  end
+
   # Doing orders from an HTML admin panel is an intereting idea. But not for now.
   # def new
   #   @order = Order.new

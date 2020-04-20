@@ -17,7 +17,7 @@ describe OrdersController, type: :controller do
 
       it 'should assign all if passed' do
         get :index, params: {scope: 'all'}
-        assigns[:orders].should == [@order, @inactive_order]
+        assigns[:orders].should == [@inactive_order, @order]
       end
 
       it 'should return active if a non-scope is passed' do
