@@ -5,7 +5,7 @@ require("channels")
 
 require("jquery")
 require("jquery-ui")
-
+require("bootstrap")
 global.$ = require("jquery")
 
 require("./pages/all")

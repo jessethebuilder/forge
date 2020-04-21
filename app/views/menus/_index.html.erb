@@ -2,19 +2,20 @@
   <table class="table table-striped">
     <thead>
       <tr>
-        <th>Id</th>
+        <th>Active</th>
         <th>Name</th>
         <th></th>
       </tr>
     </thead>
     <tbody>
       <% menus.each do |menu| %>
-        <tr>
-          <td><%= menu.id %></td>
+        <%= content_tag :tr, data: {id: menu.id} do %>
+          <td><%= activator(menu) %></td>
           <td><%= menu.name %></td>
           <td>
             <%= link_to 'Edit', edit_menu_path(menu), class: 'btn btn-primary' %>
           </td>
+        <% end %>
       <% end %>
     </tbody>
   </table>

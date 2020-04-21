@@ -42,24 +42,21 @@ describe 'Menu Features', type: :feature do
       end
     end # Updating
 
-    describe 'Editing Groups', js: false do
+    describe 'Editing Groups', js: true do
       before do
         @group = create(:group, menu: @menu, account: @account)
       end
 
       describe 'Active?' do
         it 'should deactive on check' do
-          skip 'Headles not set up right'
-          # Switch js: to true above to get this to work.
           visit "/menus/#{@menu.to_param}/edit"
           within('#groups') do
-            expect{ find("#group_#{@group.id}_active").check }
+            expect{ find("#group_#{@group.id}_active").uncheck }
                   .to change{ @group.reload.active }.from(true).to(false)
           end
         end
 
         it 'should re-active on check' do
-          skip 'Headles not set up right'
           @group.update(active: false)
           visit "/menus/#{@menu.to_param}/edit"
           within('#groups') do

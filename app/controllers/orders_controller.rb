@@ -13,10 +13,6 @@ class OrdersController < ApplicationController
                    .includes(:order_items)
   end
 
-  def update_seen
-    @order.update(seen: true) unless @order.seen?
-  end
-
   def show
     update_seen if html_request?
   end
@@ -90,6 +86,10 @@ class OrdersController < ApplicationController
     p.delete(:items)
 
     return p
+  end
+
+  def update_seen
+    @order.update(seen: true) unless @order.seen?
   end
 
   def payment_processor

@@ -14,9 +14,8 @@ Rails.application.routes.draw do
     :groups,
     :menus,
     :customers,
+    :orders
   )
-resources :orders
-
 
   resources :order_items, only: [] do
     member do

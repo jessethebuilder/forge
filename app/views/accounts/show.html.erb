@@ -2,9 +2,17 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <%= link_to 'Menus', menus_path %>
-        <%= link_to 'Orders', orders_path %>
+        <div id="menus">
+          <h2>
+            <%= render partial: 'menus/index', locals: {menus: @account.menus} %>
+          </h2>
+        </div>
       </div>
     </div>
   </div>
 </div>
+<script>
+  $(document).on("turbolinks:load", function(){
+    setupActivators("#menus", "menu");
+  });
+</script>

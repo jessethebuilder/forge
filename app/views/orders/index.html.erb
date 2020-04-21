@@ -5,10 +5,15 @@
         <h1>Orders</h1>
         <%= content_tag :button,
                         "Clear Inactive Orders",
-                        onclick: 'clearInanactiveOrders()',
+                        onclick: 'clearInactiveOrders()',
                         class: 'float-right btn btn-danger' %>
         <%= render partial: 'orders/index.html.erb', locals: {orders: @orders} %>
       </div>
     </div>
   </div>
 </div>
+<script>
+  $(document).on("turbolinks:load", function(){
+    setupActivators("#order", "order");
+  });
+</script>
