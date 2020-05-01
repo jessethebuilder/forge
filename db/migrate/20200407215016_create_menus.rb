@@ -6,6 +6,8 @@ class CreateMenus < ActiveRecord::Migration[6.0]
       t.string :reference
       t.jsonb :data, default: {}
       t.boolean :active, default: true
+      t.string :contact_sms
+      t.string :contact_email
 
       t.timestamps
     end

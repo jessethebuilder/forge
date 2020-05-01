@@ -2,7 +2,10 @@
   <div class="container">
     <div class="row">
       <div class="col-sm-12">
-        <h1>Order: <%= @order.menu.try(:name) || current_account.menus.active.last.name %></h1>
+        <h1>
+          Order:
+          <%= @order.menu.try(:name) || current_account.menus.active.last.try(:name) %>
+        </h1>
         <div id="note">
           <strong>NOTES: </strong><%= @order.note %>
         </div>
@@ -20,7 +23,7 @@
             <%= form_with(model: @order, local: true) do |form| %>
               <%= form.hidden_field :active, value: false %>
               <div class="form-group">
-                <%= form.submit 'Complete Order', class: 'btn btn-primary' %>
+                <%= form.submit 'Finish', class: 'btn btn-primary' %>
               </div>
             <% end %>
           </div>

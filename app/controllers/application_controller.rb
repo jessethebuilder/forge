@@ -1,8 +1,7 @@
 class ApplicationController < ActionController::Base
   # Need method to prevent scopes from going to Index pages when they should go to menus/show or groups/show
-  # Should just bounce them back to root, as those routes would only be discovered by
-  # typing in.
-  RECORD_SCOPES = %w|all active|
+  # Should just bounce them back to root, as those routes would only be discovered by typing in.
+  RECORD_SCOPES = %w|all active inactive|
 
   protected
 
@@ -10,7 +9,6 @@ class ApplicationController < ActionController::Base
 
   def authenticate_account_can_access_resource!
     unless current_account == @resource.account
-      return if request.host == 'localhost'
       respond_to do |format|
         format.json{
           render json: {
@@ -31,6 +29,7 @@ class ApplicationController < ActionController::Base
   end
 
   def set_depth
+    # Refers to whether the data returned include associated record data.
     @deep = params[:deep] ? true : false
   end
 
@@ -49,7 +48,6 @@ class ApplicationController < ActionController::Base
 
   def authenticate!(*params)
     if request.format == :json
-      return if request.host == 'localhost'
       authenticate_api_account!
     else
       authenticate_web_user!

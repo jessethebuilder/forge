@@ -18,6 +18,10 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   create_table "accounts", force: :cascade do |t|
     t.boolean "active", default: true
     t.jsonb "data", default: {}
+    t.string "contact_sms"
+    t.string "contact_email"
+    t.boolean "always_contact", default: true
+    t.integer "contact_after", default: 15
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
@@ -66,6 +70,8 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "reference"
     t.jsonb "data", default: {}
     t.boolean "active", default: true
+    t.string "contact_sms"
+    t.string "contact_email"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -152,6 +158,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   add_foreign_key "groups", "accounts"
   add_foreign_key "menus", "accounts"
   add_foreign_key "order_items", "orders"
+  add_foreign_key "order_items", "products"
   add_foreign_key "orders", "accounts"
   add_foreign_key "products", "accounts"
   add_foreign_key "users", "accounts"

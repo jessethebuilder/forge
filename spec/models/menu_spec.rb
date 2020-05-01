@@ -36,13 +36,20 @@ describe Menu, type: :model do
   describe 'Class Methods' do
     before do
       @menu.save!
+      @inactive_menu = create(:menu, active: false, account: @account)
     end
 
     describe 'Scopes' do
       describe '#active' do
         it 'should return all active menus' do
-          inactive_meny = create(:menu, active: false, account: @account)
           Menu.active.should == [@menu]
+        end
+      end
+
+
+      describe '#inactive' do
+        it 'should return any product that is not active' do
+          Menu.inactive.should == [@inactive_menu]
         end
       end
     end

@@ -9,6 +9,12 @@ Rails.application.routes.draw do
   resource :account, only: [:new, :show]
   root to: 'accounts#new'
 
+  resources :products, only: [] do
+    collection do
+      get :all_inactive
+    end
+  end
+
   dual_routes_for(
     :products,
     :groups,

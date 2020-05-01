@@ -9,6 +9,7 @@ class Group < ApplicationRecord
   default_scope -> { order(:order) }
 
   scope :active, -> { where(active: true) }
+  scope :inactive, -> { where(active: false) }
 
   validate :product_belongs_to_menu
 

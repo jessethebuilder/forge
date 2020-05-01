@@ -13,6 +13,19 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
+
+
+
+  scope :inactive, -> { where(active: false) }
+
+
+
+
+
+
+
+
+
   default_scope -> { order(:order) }
 
   def product_belongs_to_group

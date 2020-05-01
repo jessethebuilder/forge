@@ -7,3 +7,5 @@ class Account < ApplicationRecord
   has_many :credentials, dependent: :destroy
   has_many :users, dependent: :destroy
 end
+
+# Account should have a main contact number, which can be called if 

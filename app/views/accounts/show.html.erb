@@ -1,15 +1,18 @@
 <div id="account">
-  <div class="container">
-    <div class="row">
-      <div class="col-sm-12">
-        <div id="menus">
-          <h2>
-            <%= render partial: 'menus/index', locals: {menus: @account.menus} %>
-          </h2>
-        </div>
-      </div>
-    </div>
+  <%= full_width_container do %>
+    <h1>Account</h1>
+  <% end %>
+  <div id="edit_account">
+    <%= full_width_container do %>
+      <%= render partial: 'form', locals: {account: @account} %>
+    <% end %>
   </div>
+  <div id="menus">
+    <%= full_width_container do %>
+      <h2>Menus</h2>
+      <%= render partial: 'menus/index', locals: {menus: @account.menus} %>
+    </div>
+  <% end %>
 </div>
 <script>
   $(document).on("turbolinks:load", function(){

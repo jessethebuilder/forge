@@ -1,14 +1,7 @@
-<% row_class = order.seen? ? 'seen' : 'unseen' %>
-<% row_class = 'complete' if order.complete? %>
+<% row_classes = (order.seen? ? ['seen'] : ['unseen']) %>
+<% row_classes << (order.active? ? 'active' : 'inactive') %>
 
-<%= content_tag :tr, data: {id: order.id}, class: row_class do %>
-  <td>
-    <%= form_with(model: order, local: true, index: order.id) do |form| %>
-      <div class="form-check">
-        <%= form.check_box :active, class: 'form-check-input activator' %>
-      </div>
-    <% end %>
-  </td>
+<%= content_tag :tr, data: {id: order.id}, class: row_classes do %>
   <td><%= order.id %></td>
   <td><%= number_to_currency(order.total) %></td>
   <td><%= order.created_at %></td>

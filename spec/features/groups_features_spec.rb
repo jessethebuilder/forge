@@ -91,31 +91,31 @@ describe 'Group Features', type: :feature do
         end
       end
 
-      describe 'Editing Products', js: true do
-        before do
-          @product = create(:product, account: @account, group: @group)
-        end
-
-        describe 'Active?' do
-          it 'should deactive on check' do
-            visit "/groups/#{@group.to_param}/edit"
-            within('#products') do
-              expect{ find("#product_#{@product.id}_active").uncheck }
-                    .to change{ @product.reload.active }.from(true).to(false)
-            end
-          end
-
-          it 'should re-active on check' do
-            @product.update(active: false)
-            visit "/groups/#{@group.to_param}/edit"
-
-            within('#products') do
-              expect{ find("#product_#{@product.id}_active").check }
-                    .to change{ @product.reload.active }.from(false).to(true)
-            end
-          end
-        end
-      end
+      # describe 'Editing Products', js: true do
+      #   before do
+      #     @product = create(:product, account: @account, group: @group)
+      #   end
+      #
+      #   describe 'Active?' do
+      #     it 'should deactive on check' do
+      #       visit "/groups/#{@group.to_param}/edit"
+      #       within('#products') do
+      #         expect{ find("#product_#{@product.id}_active").uncheck }
+      #               .to change{ @product.reload.active }.from(true).to(false)
+      #       end
+      #     end
+      #
+      #     it 'should re-active on check' do
+      #       @product.update(active: false)
+      #       visit "/groups/#{@group.to_param}/edit"
+      #
+      #       within('#products') do
+      #         expect{ find("#product_#{@product.id}_active").check }
+      #               .to change{ @product.reload.active }.from(false).to(true)
+      #       end
+      #     end
+      #   end
+      # end
     end # Updating
   end # As Account User
 1

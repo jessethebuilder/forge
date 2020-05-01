@@ -6,10 +6,19 @@ class ProductsController < ApplicationController
   before_action :set_scope, only: [:index, :show]
 
   def index
-      @products = Product.send(@scope)
-                         .where(account_id: current_account.id)
-                         .includes(:menu)
-                         .includes(:group)
+    @products = Product.send(@scope)
+                       .where(account_id: current_account.id)
+                       .includes(:menu)
+                       .includes(:group)
+  end
+
+  def all_inactive
+    # Includes Products in inactive Menus and Groups.
+    @products = Product.inactive.to_a
+    @products += Menu.inactive.map(&:products).flatten
+    @products += Group.inactive.map(&:products).flatten
+
+    render :index
   end
 
   def show

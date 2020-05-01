@@ -1,0 +1,23 @@
+<!-- <div id="products">
+  <%= full_width_container do %>
+    <h1>Product</h1>
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Group</th>
+          <th>Name</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @products.each do |product| %>
+          <%= content_tag :tr, data: {id: product.id} do %>
+            <td></td>
+            <td><%= product.group.try(:name) %></td>
+            <td><%= product.name %></td>
+          <% end %>
+        <% end %>
+      </tbody>
+    </table>
+  <% end %>
+</div> -->

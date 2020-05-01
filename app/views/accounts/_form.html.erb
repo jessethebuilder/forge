@@ -1,0 +1,29 @@
+<%= form_with(model: account, local: true, class: 'record_form') do |form| %>
+  <%= show_errors(account) %>
+
+  <div class="form-group">
+    <%= form.label :contact_sms, 'Contact SMS' %>
+    <%= form.text_field :contact_sms, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :contact_email %>
+    <%= form.text_field :contact_email, class: 'form-control' %>
+  </div>
+
+  <%= content_tag :div, class: 'form-group' do %>
+    <%= content_tag :div, class: 'form-check' do %>
+      <%= form.check_box :always_contact, class: 'form-check-input' %>
+      <%= form.label :always_contact, class: 'form-check-label' %>
+    <% end %>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :contact_after %> <small>in minutes</small>
+    <%= form.number_field :contact_after, class: 'form-control', placeholder: 'in minutes' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.submit class: 'btn btn-primary' %>
+  </div>
+<% end %>

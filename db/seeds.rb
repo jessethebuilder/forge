@@ -1,3 +1,4 @@
+Order.destroy_all
 Account.destroy_all
 
 a = Account.create!
@@ -8,10 +9,10 @@ c = Credential.create!(user: u, account: a, username: 'jeff')
   m = Menu.create!(account: a, name: Faker::Games::Fallout.location)
 
   # Random.rand(0..3).times do
-  3.times do
+  4.times do
     g = Group.create!(account: a, menu: m, name: Faker::Commerce.department)
 
-    3.times do
+    Random.rand(2..7).times do
       p = Product.create!(
         name: Faker::Food.dish,
         account: a,
@@ -26,6 +27,8 @@ end
 3.times do
   c = Customer.create!(account: a)
 end
+
+# curl -H "Authorization: Token token=QnBWl74yIXRdUcQClUrErAtt" -H "ACCEPT: application/json" http://localhost:3000/menus?deep=true 
 
 4.times do
   o = Order.create!(account: a, customer: Customer.all.sample, note: Faker::Lorem.sentence)

@@ -22,7 +22,7 @@ class Order < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
-  after_commit :broadcast_to_account, on: :create # spec!!!!!!!!!!!!!!!
+  after_commit :broadcast_to_account, on: :create 
 
   private
 

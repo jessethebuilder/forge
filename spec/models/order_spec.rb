@@ -28,6 +28,42 @@ describe Order, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
+    describe 'Creation' do
+      before do
+        allow(ActionCable.server).to receive(:broadcast)
+      end
+
+      it 'should Broadcast on creation' do
+        @order.save!
+
+        expect(ActionCable.server).to have_received(:broadcast).with(
+          "orders_for_account_#{@order.account.id}",
+          {
+            action: 'new_order',
+            data: {
+              order_id: @order.reload.id
+            }
+          }
+        )
+      end
+
+      it 'should not Broadcast on update' do
+        @order.save!
+        expect(ActionCable.server).not_to receive(:broadcast)
+        @order.save!
+      end
+    end
+
+      #
+      # ActionCable.server.broadcast(
+      #   "orders_for_account_#{account.id}",
+      #   {
+      #     action: 'new_order',
+      #     data: {
+      #       order_id: self.id
+      #     }
+      #   }
+      # )
   end # Behaviors
 
   describe 'Methods' do
