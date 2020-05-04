@@ -56,5 +56,8 @@ module Forge
       :enable_starttls_auto => true,
       :openssl_verify_mode => 'none'
     }
+
+    config.stripe_secret_key = ENV.fetch('STRIPE_SECRET')
+    config.stripe_publishable_key = ENV.fetch('STRIPE_KEY')
   end
 end
