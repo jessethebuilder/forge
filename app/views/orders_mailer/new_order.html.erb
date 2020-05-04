@@ -1,0 +1,39 @@
+<style>
+  .total{
+    margin-top: 20px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+</style>
+
+<h1>
+  New Order <%= " for #{@menu.name}" if @menu %>
+</h1>
+<% unless @order.note.blank? %>
+  <div class="notes">
+    <h3>NOTES:</h3>
+    <p><%= @order.note %></p>
+  </div>
+<% end %>
+<h2>Item</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Group</th>
+      <th>Product</th>
+      <th>Note</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @order.order_items.each do |item| %>
+      <tr>
+        <td><%= item.product.group.try(:name) %></td>
+        <td><%= item.product.name %></td>
+        <td><%= item.note %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+<div class="total">
+  TOTAL: <%= number_to_currency(@order.total) %>
+</div>

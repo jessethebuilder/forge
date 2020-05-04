@@ -80,8 +80,12 @@ class OrdersController < ApplicationController
       :reference,
       :data,
       :active,
+      :tip,
+      :tax,
       items: [:product_id, :note, :amount]
     )
+    # Move :items to :order_items_attributes to make the API cleaner, but still
+    # conforms to the Rails conventions.
     p[:order_items_attributes] = p[:items] if p[:items]
     p.delete(:items)
 

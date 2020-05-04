@@ -1,6 +1,7 @@
 describe Order, type: :model do
   before do
     @order = build(:order)
+    allow(NewOrderNotificationJob).to receive(:perform_async)
   end
 
   describe 'Validations' do
@@ -33,62 +34,52 @@ describe Order, type: :model do
         allow(ActionCable.server).to receive(:broadcast)
       end
 
-      it 'should Broadcast on creation' do
+      it 'should start Notification Job on Create' do
         @order.save!
-
-        expect(ActionCable.server).to have_received(:broadcast).with(
-          "orders_for_account_#{@order.account.id}",
-          {
-            action: 'new_order',
-            data: {
-              order_id: @order.reload.id
-            }
-          }
-        )
+        expect(NewOrderNotificationJob)
+              .to have_received(:perform_async)
+              .with(@order.reload.id)
       end
 
       it 'should not Broadcast on update' do
         @order.save!
-        expect(ActionCable.server).not_to receive(:broadcast)
+        expect(NewOrderNotificationJob).not_to receive(:perform_async)
         @order.save!
       end
     end
-
-      #
-      # ActionCable.server.broadcast(
-      #   "orders_for_account_#{account.id}",
-      #   {
-      #     action: 'new_order',
-      #     data: {
-      #       order_id: self.id
-      #     }
-      #   }
-      # )
   end # Behaviors
 
   describe 'Methods' do
-    describe '#total' do
-      it 'should return the total of all order_items' do
-        product = create(:product, price: 15.0)
+    describe 'Money Methods' do
+      before do
+        @product = create(:product, price: 15.0)
         @order.order_items << [
-          build(:order_item, product: product),
-          build(:order_item, product: product)
+          build(:order_item, product: @product),
+          build(:order_item, product: @product)
         ]
-        @order.total.should == 30
       end
-    end
 
-    describe '#refund_total' do
-      it 'should return the total of all refunds' do
-        product = create(:product, price: 30.0)
-        @order.order_items << build(:order_item, product: product)
+      describe '#subtotal' do
+        it 'should return the total of all order_items' do
+          @order.subtotal.should == 30
+        end
+      end
 
-        create(:charge, order: @order)
+      describe '#total' do
+        it 'should return sub_total + tax + tip' do
+          @order.tax = 10
+          @order.tip = 10
+          @order.total.should == 50
+        end
+      end
 
-        create(:refund, order: @order, amount: -10)
-        create(:refund, order: @order, amount: -10)
-
-        @order.refund_total.should == -20
+      describe '#refund_total' do
+        it 'should return the total of all refunds' do
+          create(:charge, order: @order) # The first Transaction, must be a Charge!
+          create(:refund, order: @order, amount: -10)
+          create(:refund, order: @order, amount: -10)
+          @order.refund_total.should == -20
+        end
       end
     end
 

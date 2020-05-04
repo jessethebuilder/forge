@@ -31,5 +31,30 @@ module Forge
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    config.middleware.insert_before 0, Rack::Cors do
+      allow do
+        origins '*'
+        resource '*', :headers => :any, :methods => [:get, :post, :options]
+      end
+    end
+
+    config.action_mailer.default_url_options = {host: ENV.fetch('EMAIL_HOST')}
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.raise_delivery_errors = true
+    config.action_mailer.perform_deliveries = true
+    config.action_mailer.default :charset => 'utf-8'
+
+    config.action_mailer.smtp_settings = {
+      :address => ENV.fetch('EMAIL_ACCOUNT'),
+      :port => ENV.fetch('EMAIL_PORT'),
+      :domain => ENV.fetch('EMAIL_DOMAIN'),
+      :authentication => 'plain',
+      :user_name => ENV.fetch('EMAIL_USER'),
+      :password => ENV.fetch('EMAIL_PASSWORD'),
+
+      :enable_starttls_auto => true,
+      :openssl_verify_mode => 'none'
+    }
   end
 end

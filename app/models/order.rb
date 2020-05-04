@@ -9,7 +9,11 @@ class Order < ApplicationRecord
   has_many :transactions
 
   def total
-    order_items.map(&:amount).sum
+    subtotal + tip + tax
+  end
+
+  def subtotal
+    order_items.map(&:amount).sum.to_f
   end
 
   def refund_total
@@ -22,19 +26,11 @@ class Order < ApplicationRecord
 
   scope :active, -> { where(active: true) }
 
-  after_commit :broadcast_to_account, on: :create 
-
+  after_commit :send_new_order_notifications, on: :create
+  
   private
 
-  def broadcast_to_account
-    ActionCable.server.broadcast(
-      "orders_for_account_#{account.id}",
-      {
-        action: 'new_order',
-        data: {
-          order_id: self.id
-        }
-      }
-    )
+  def send_new_order_notifications
+    NewOrderNotificationJob.perform_async(self.id)
   end
 end

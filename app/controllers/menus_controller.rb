@@ -12,7 +12,6 @@ class MenusController < ApplicationController
   def show
   end
 
-
   def new
     @menu = Menu.new
   end

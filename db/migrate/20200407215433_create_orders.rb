@@ -4,6 +4,8 @@ class CreateOrders < ActiveRecord::Migration[6.0]
       t.jsonb :data, default: {}
       t.string :reference
       t.string :note
+      t.float :tip, default: 0.0
+      t.float :tax, default: 0.0
       t.boolean :active, default: true
       t.boolean :seen, default: false
 

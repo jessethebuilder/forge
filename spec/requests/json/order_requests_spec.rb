@@ -14,6 +14,10 @@ describe 'Order Requests', type: :request, api: true do
         {
           id: @order.id,
           items: [],
+          total: 0.0,
+          subtotal: 0.0,
+          tax: 0.0,
+          tip: 0.0,
           data: {},
           reference: nil,
           created_at: @order.created_at,
@@ -46,6 +50,10 @@ describe 'Order Requests', type: :request, api: true do
       response.body.should == {
         id: @order.id,
         items: [],
+        total: 0.0,
+        subtotal: 0.0,
+        tax: 0.0,
+        tip: 0.0,
         data: {hello: 'world'},
         reference: 'reference',
         created_at: @order.created_at,
@@ -65,6 +73,31 @@ describe 'Order Requests', type: :request, api: true do
       }.to_json
 
       response.status.should == 401
+    end
+
+    it 'should return :tip' do
+      @order.update(tip: 10.0)
+      get "/orders/#{@order.id}.json", headers: test_api_headers
+      JSON.parse(response.body)['tip'].should == 10.0
+    end
+
+    it 'should return :tax' do
+      @order.update(tax: 1.1)
+      get "/orders/#{@order.id}.json", headers: test_api_headers
+      JSON.parse(response.body)['tax'].should == 1.1
+    end
+
+    it 'should return subtotal' do
+      @order.order_items << create(:order_item, product: create(:product, price: 10.0))
+      get "/orders/#{@order.id}.json", headers: test_api_headers
+      JSON.parse(response.body)['subtotal'].should == 10.0
+    end
+
+    it 'should return total' do
+      @order.update(tax: 10.0, tip: 10.0)
+      @order.order_items << create(:order_item, product: create(:product, price: 10.0))
+      get "/orders/#{@order.id}.json", headers: test_api_headers
+      JSON.parse(response.body)['total'].should == 30.0
     end
   end # Show
 
@@ -86,6 +119,10 @@ describe 'Order Requests', type: :request, api: true do
       response.body.should == {
         id: created_order.id,
         items: [],
+        total: 0.0,
+        subtotal: 0.0,
+        tax: 0.0,
+        tip: 0.0,
         data: {},
         reference: 'reference',
         created_at: created_order.created_at,
@@ -93,6 +130,16 @@ describe 'Order Requests', type: :request, api: true do
         customer_id: nil,
         menu_id: nil,
       }.to_json
+    end
+
+    it 'should save :tip' do
+      post '/orders.json', params: {order: {tip: 22.13}}, headers: test_api_headers
+      Order.last.tip.should == 22.13
+    end
+
+    it 'should save :tax' do
+      post '/orders.json', params: {order: {tax: 0.42}}, headers: test_api_headers
+      Order.last.tax.should == 0.42
     end
 
     it 'should accept menu_id as a param' do
@@ -211,6 +258,10 @@ describe 'Order Requests', type: :request, api: true do
       response.body.should == {
         id: @order.reload.id,
         items: [],
+        total: 0.0,
+        subtotal: 0.0,
+        tax: 0.0,
+        tip: 0.0,
         data: {},
         reference: @update_params[:order][:reference],
         created_at: @order.created_at,

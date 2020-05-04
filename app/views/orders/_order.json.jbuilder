@@ -10,6 +10,10 @@ end
 
 json.extract!(
   order,
+  :total,
+  :subtotal,
+  :tax,
+  :tip,
   :data,
   :reference,
   :created_at,

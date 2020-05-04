@@ -94,6 +94,8 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.jsonb "data", default: {}
     t.string "reference"
     t.string "note"
+    t.float "tip", default: 0.0
+    t.float "tax", default: 0.0
     t.boolean "active", default: true
     t.boolean "seen", default: false
     t.datetime "created_at", precision: 6, null: false
