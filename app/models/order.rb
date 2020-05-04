@@ -8,13 +8,6 @@ class Order < ApplicationRecord
 
   has_many :transactions
 
-  def charge
-    Stripe::Charge.create({
-      amount: (self.total * 100).to_i,
-      # https://stripe.com/docs/api/charges/create
-    })
-  end
-
   def total
     subtotal + tip + tax
   end

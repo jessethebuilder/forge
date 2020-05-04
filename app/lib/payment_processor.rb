@@ -1,6 +1,6 @@
 class PaymentProcessor
-  def fund_order(order)
-       4
+  def charge(order)
+    
   end
 
   def refund_order(order, amount)
