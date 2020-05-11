@@ -24,6 +24,13 @@ describe Credential, type: :model do
       @credential.save!
       @credential.token.should_not == nil
     end
+
+    it 'should not update token on Update' do
+      @credential.save!
+      token = @credential.token
+      @credential.save!
+      @credential.token.should == token
+    end
   end # Behaviors
 
   describe 'Methods' do

@@ -29,4 +29,8 @@ module ApplicationHelper
       end
     end
   end
+
+  def favicon
+    render partial: 'layouts/partials/favicon'
+  end
 end

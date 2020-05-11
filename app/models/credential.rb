@@ -5,7 +5,7 @@ class Credential < ApplicationRecord
   validates :username, presence: true, uniqueness: true
   validates :token, presence: true
 
-  before_validation :generate_token, only: [:create]
+  before_validation :generate_token, on: [:create]
 
   def generate_token
     loop do

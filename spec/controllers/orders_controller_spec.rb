@@ -25,5 +25,8 @@ describe OrdersController, type: :controller do
         assigns[:orders].should == [@order]
       end
     end
-  end
+  end # INDEX
+
+  describe 'CREATE /orders' do
+  end # CREATE
 end

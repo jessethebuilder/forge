@@ -10,14 +10,14 @@ window.startOrderChannel = function(account_id){
         console.log("Connected to Order Channel for Account " + account_id);
       },
       received(data){
-        console.log("New Order for Account " + account_id + ' - Order: ' + data['data']['order_id']);
-
         switch(data['action']){
           case 'new_order':
-          $.ajax({
-            method: 'GET',
-            url: "/orders/" + data['data']['order_id'] + '.js',
-           });
+            console.log("New Order for Account " + account_id + ' - Order: ' + data['data']['order_id']);
+
+            $.ajax({
+              method: 'GET',
+              url: "/orders/" + data['data']['order_id'] + '.js',
+            });
 
           break;
         }

@@ -25,12 +25,4 @@ class Order < ApplicationRecord
   end
 
   scope :active, -> { where(active: true) }
-
-  after_commit :send_new_order_notifications, on: :create
-
-  private
-
-  def send_new_order_notifications
-    NewOrderNotificationJob.perform_async(self.id)
-  end
 end

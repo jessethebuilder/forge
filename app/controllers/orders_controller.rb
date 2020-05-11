@@ -3,8 +3,40 @@ class OrdersController < ApplicationController
   before_action :set_order, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
   before_action :set_scope, only: [:index]
-
+  skip_before_action :verify_authenticity_token, if: :json_request?
   respond_to :html, :json, :js
+
+  def broadcast_order!
+    ActionCable.server.broadcast(
+      "orders_for_account_#{@order.account.id}",
+      {
+        action: 'new_order',
+        data: {
+          order_id: @order.id
+        }
+      }
+    )
+  end
+
+
+  def create
+    @order = Order.new(order_params)
+    @order.account = current_account
+
+    respond_to do |format|
+      if @order.save
+        broadcast_order!
+        NewOrderNotificationJob.perform_async(@order.id)
+        payment_processor.charge(@order)
+
+        format.html { redirect_to @order, notice: 'Order was successfully created.' }
+        format.json { render :show, status: :created, location: @order }
+      else
+        format.html { render :new }
+        format.json { render json: @order.errors, status: :unprocessable_entity }
+      end
+    end
+  end
 
   def index
     @orders = Order.where(account_id: current_account.id)
@@ -17,9 +49,6 @@ class OrdersController < ApplicationController
     update_seen if html_request?
   end
 
-  def temp
-    Order.create(account: current_account)
-  end
 
   # Doing orders from an HTML admin panel is an intereting idea. But not for now.
   # def new
@@ -28,22 +57,6 @@ class OrdersController < ApplicationController
   #
   # def edit
   # end
-
-  def create
-    @order = Order.new(order_params)
-    @order.account = current_account
-
-    respond_to do |format|
-      if @order.save
-        payment_processor.fund_order(@order)
-        # format.html { redirect_to @order, notice: 'Order was successfully created.' }
-        format.json { render :show, status: :created, location: @order }
-      else
-        # format.html { render :new }
-        format.json { render json: @order.errors, status: :unprocessable_entity }
-      end
-    end
-  end
 
   def update
     respond_to do |format|
@@ -82,8 +95,7 @@ class OrdersController < ApplicationController
       :active,
       :tip,
       :tax,
-      items: [:product_id, :note, :amount]
-    )
+      items: [:product_id, :note, :amount]    )
     # Move :items to :order_items_attributes to make the API cleaner, but still
     # conforms to the Rails conventions.
     p[:order_items_attributes] = p[:items] if p[:items]

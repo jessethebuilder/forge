@@ -35,3 +35,7 @@ have to be in a Group).
 
 This means that any Account with multiple Menus, but no reason to use Groups will
 generally have their Products in a Group called "Main" in each Menu.
+
+## Forge in development
+
+Run Forge locally with `RAILS_ENV=development foreman start`.

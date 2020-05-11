@@ -166,8 +166,16 @@ describe 'Order Requests', type: :request, api: true do
     end
 
     it 'should call PaymentProcessor' do
-      expect_any_instance_of(PaymentProcessor).to receive(:fund_order)
+      expect_any_instance_of(PaymentProcessor).to receive(:charge)
       post '/orders.json', params: @create_params, headers: test_api_headers
+    end
+
+    it 'should start Notification Job' do
+      allow(NewOrderNotificationJob).to receive(:perform_async)
+      post '/orders.json', params: {order: {tip: 10}}, headers: test_api_headers
+      expect(NewOrderNotificationJob)
+            .to have_received(:perform_async)
+            .with(Order.order(created_at: :desc).first.id)
     end
 
     describe 'OrderItems' do

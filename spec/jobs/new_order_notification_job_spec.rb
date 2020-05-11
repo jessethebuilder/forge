@@ -3,50 +3,35 @@ describe NewOrderNotificationJob, type: :job do
     @order = create(:order)
     @account = @order.account
     @job = NewOrderNotificationJob.new
+    allow(SmsNotificationJob).to receive(:perform_in)
+    allow(SmsNotificationJob).to receive(:perform_async)
   end
-
-  describe 'Account Socket Notification' do
-    before do
-      allow(ActionCable.server).to receive(:broadcast)
-    end
-
-    it 'should Broadcast on creation' do
-      @job.perform(@order.id)
-
-      expect(ActionCable.server).to have_received(:broadcast).with(
-        "orders_for_account_#{@order.account.id}",
-        {
-          action: 'new_order',
-          data: {
-            order_id: @order.id
-          }
-        }
-      )
-    end
-  end # Account Socket Notification
 
   describe 'SMS Notification' do
     before do
       @phone = Faker::PhoneNumber.cell_phone
-      @account.update(contact_sms: @phone)
-      allow(SmsNotificationJob).to receive(:perform_async)
-      allow(SmsNotificationJob).to receive(:perform_in)
+      @minutes = Random.rand(1..100)
+      @account.update(contact_sms: @phone, contact_after: @minutes)
+      allow(AccountOrderNotificationJob).to receive(:perform_in)
     end
 
-    it 'should send SMS notification to Acocunt after the number of minutes specified on Account' do
-      minutes = Random.rand(0..100)
-      @account.update(contact_after: minutes)
-
+    it 'should call AccountOrderNotificationJob' do
       @job.perform(@order.id)
-      expect(SmsNotificationJob)
+      expect(AccountOrderNotificationJob)
             .to have_received(:perform_in)
-            .with(minutes.minutes, @phone, @job.send(:sms_body))
+            .with(@minutes.minutes, @order.id, @job.send(:sms_body))
     end
 
     it 'should not SMS notification if contact_after is nil' do
       @account.update(contact_after: nil)
       @job.perform(@order.id)
-      expect(SmsNotificationJob).not_to have_received(:perform_in)
+      expect(AccountOrderNotificationJob).not_to have_received(:perform_in)
+    end
+
+    it 'should not SMS notification if :contact_sms is nil' do
+      @account.update(contact_sms: nil)
+      @job.perform(@order.id)
+      expect(AccountOrderNotificationJob).not_to have_received(:perform_in)
     end
 
     context '@order has a Menu' do

@@ -29,24 +29,6 @@ describe Order, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
-    describe 'Creation' do
-      before do
-        allow(ActionCable.server).to receive(:broadcast)
-      end
-
-      it 'should start Notification Job on Create' do
-        @order.save!
-        expect(NewOrderNotificationJob)
-              .to have_received(:perform_async)
-              .with(@order.reload.id)
-      end
-
-      it 'should not Broadcast on update' do
-        @order.save!
-        expect(NewOrderNotificationJob).not_to receive(:perform_async)
-        @order.save!
-      end
-    end
   end # Behaviors
 
   describe 'Methods' do
