@@ -6,19 +6,6 @@ class OrdersController < ApplicationController
   skip_before_action :verify_authenticity_token, if: :json_request?
   respond_to :html, :json, :js
 
-  def broadcast_order!
-    ActionCable.server.broadcast(
-      "orders_for_account_#{@order.account.id}",
-      {
-        action: 'new_order',
-        data: {
-          order_id: @order.id
-        }
-      }
-    )
-  end
-
-
   def create
     @order = Order.new(order_params)
     @order.account = current_account
@@ -110,5 +97,17 @@ class OrdersController < ApplicationController
 
   def payment_processor
     @payment_processor ||= PaymentProcessor.new
+  end
+
+  def broadcast_order!
+    ActionCable.server.broadcast(
+      "orders_for_account_#{@order.account.id}",
+      {
+        action: 'new_order',
+        data: {
+          order_id: @order.id
+        }
+      }
+    )
   end
 end

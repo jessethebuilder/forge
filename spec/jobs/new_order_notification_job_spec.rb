@@ -3,35 +3,39 @@ describe NewOrderNotificationJob, type: :job do
     @order = create(:order)
     @account = @order.account
     @job = NewOrderNotificationJob.new
+    @minutes = Random.rand(1..100)
+
     allow(SmsNotificationJob).to receive(:perform_in)
     allow(SmsNotificationJob).to receive(:perform_async)
+  end
+
+
+  describe 'AccountOrderNotificationJob' do
+    before do
+      @account.update(
+        contact_sms: '123-456-7890',
+        contact_email: 'jeff@test.com',
+        contact_email_after_unseen: 10,
+        contact_sms_after_unseen: 22
+      )
+    end
+
+    it 'should call AccountOrderNotificationJob for each action' do
+      expect(AccountOrderNotificationJob).to receive(:perform_in)
+            .with(22.minutes, :sms, @order.id)
+
+      expect(AccountOrderNotificationJob).to receive(:perform_in)
+            .with(10.minutes, :email, @order.id)
+
+      @job.perform(@order.id)
+    end
   end
 
   describe 'SMS Notification' do
     before do
       @phone = Faker::PhoneNumber.cell_phone
-      @minutes = Random.rand(1..100)
-      @account.update(contact_sms: @phone, contact_after: @minutes)
+      @account.update(contact_sms: @phone, contact_email_after_unseen: @minutes)
       allow(AccountOrderNotificationJob).to receive(:perform_in)
-    end
-
-    it 'should call AccountOrderNotificationJob' do
-      @job.perform(@order.id)
-      expect(AccountOrderNotificationJob)
-            .to have_received(:perform_in)
-            .with(@minutes.minutes, @order.id, @job.send(:sms_body))
-    end
-
-    it 'should not SMS notification if contact_after is nil' do
-      @account.update(contact_after: nil)
-      @job.perform(@order.id)
-      expect(AccountOrderNotificationJob).not_to have_received(:perform_in)
-    end
-
-    it 'should not SMS notification if :contact_sms is nil' do
-      @account.update(contact_sms: nil)
-      @job.perform(@order.id)
-      expect(AccountOrderNotificationJob).not_to have_received(:perform_in)
     end
 
     context '@order has a Menu' do
@@ -44,27 +48,16 @@ describe NewOrderNotificationJob, type: :job do
         @job.perform(@order.id)
         expect(SmsNotificationJob)
               .to have_received(:perform_async)
-              .with(@menu_phone, @job.send(:sms_body))
+              .with(@menu_phone, @order.send(:new_order_sms_body))
       end
     end # has Menu
   end # SMS
 
   describe 'Email Notification' do
     before do
+      @email = Faker::Internet.email
+      @account.update(contact_email_after_unseen: @minutes, contact_email: @mail)
       allow(OrdersMailer).to receive(:new_order).and_call_original
-    end
-
-    it 'should call send email to Account, is email address is provided' do
-      email = Faker::Internet.email
-      @account.update(contact_email: email)
-      expect(OrdersMailer).to receive(:new_order).with(email, @order.id)
-      @job.perform(@order.id)
-    end
-
-    it 'should NOT try to send an email, if @account.contact_email is blank' do
-      @account.update(contact_email: '')
-      expect(OrdersMailer).not_to receive(:new_order)
-      @job.perform(@order.id)
     end
 
     context 'Order has Menu' do

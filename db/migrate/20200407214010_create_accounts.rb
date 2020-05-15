@@ -5,8 +5,8 @@ class CreateAccounts < ActiveRecord::Migration[6.0]
       t.jsonb :data, default: {}
       t.string :contact_sms
       t.string :contact_email
-      t.boolean :always_contact, default: true
-      t.integer :contact_after, default: 15
+      t.integer :contact_sms_after_unseen, default: 10
+      t.integer :contact_email_after_unseen, default: 10
 
       t.timestamps
     end
