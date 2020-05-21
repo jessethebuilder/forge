@@ -2,11 +2,11 @@ Order.destroy_all
 Account.destroy_all
 
 a = Account.create!(contact_sms: '3606709312', contact_email: 'jesse@anysoft.us')
-u = User.create!(email: 'test@test.com', password: ENV.fetch('PASSWORD'), account: a)
+u = User.create!(email: 'account@test.com', password: ENV.fetch('PASSWORD'), account: a)
 c = Credential.create!(user: u, account: a, username: 'jeff')
 c.update(token: 'test_token')
 
-1.times do
+3.times do
   m = Menu.create!(account: a, name: Faker::Games::Fallout.location, description: Faker::Lorem.paragraph,
                    contact_sms: '3606709312', contact_email: 'jesse@anysoft.us')
 

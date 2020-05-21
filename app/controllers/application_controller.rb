@@ -17,7 +17,6 @@ class ApplicationController < ActionController::Base
           status: 401
         }
         format.html{
-          # spec!!!!!!!!!!!!!!!!!!!!!!!!!!!!1
           redirect_to root_url, alert: t('errors.no_auth.resource', resource_type: @resource.class.name)
         }
       end

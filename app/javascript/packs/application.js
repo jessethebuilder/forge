@@ -6,12 +6,20 @@ require("channels")
 require("jquery")
 require("jquery-ui")
 require("bootstrap")
+require("backbone")
 global.$ = require("jquery")
+
+import Backbone from "backbone"
+global.Backbone = Backbone
+
+global._ = require("underscore")
 
 require("./pages/all")
 
 import "css/main"
 
+import MenusApp from "./menus/app"
+window.MenusApp = MenusApp
 
 
 // Uncomment to copy all static images under ../images to the output folder and reference

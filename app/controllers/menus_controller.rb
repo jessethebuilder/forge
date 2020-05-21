@@ -6,6 +6,7 @@ class MenusController < ApplicationController
   before_action :set_scope, only: [:index, :show]
 
   def index
+    @deep = true if html_request?
     @menus = Menu.send(@scope).where(account_id: current_account.id)
   end
 

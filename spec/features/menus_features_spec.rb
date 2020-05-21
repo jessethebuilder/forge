@@ -5,6 +5,19 @@ describe 'Menu Features', type: :feature do
       @menu = create(:menu, account: @account)
     end
 
+    describe 'Showing a Menu' do
+      it 'should show User their menu' do
+        visit "/menus/#{@menu.to_param}"
+        current_path.should == "/menus/#{@menu.to_param}"
+      end
+
+      it "should not allow User their menu visit other's menu" do
+        other_menu = create(:menu)
+        visit "/menus/#{other_menu.to_param}"
+        current_path.should == "/account"
+      end
+    end
+
     describe 'Creating a Menu' do
       it 'should create a menu with all attributes' do
         menu_min
