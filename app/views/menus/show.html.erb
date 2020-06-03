@@ -1,3 +1,14 @@
-<div id="menu">
-  <%= link_to 'New Group', new_group_path(menu_id: @menu.id) %>
-</div>
+<%= full_width_container do %>
+  <div id="menu"></div>
+<% end %>
+
+<% content_for :templates do %>
+  <%= render partial: 'menus/menu_view_template' %>
+  <%= render partial: 'menus/group_view_template' %>
+  <%= render partial: 'menus/product_view_template' %>
+<% end %>
+
+<script>
+  let app = new MenuApp;
+  app.start(<%== render template: 'menus/show.json' %>);
+</script>

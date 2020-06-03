@@ -7,5 +7,6 @@ class AccountsController < ApplicationController
 
   def show
     @account = current_account
+    @menus = @account.menus
   end
 end

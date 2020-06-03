@@ -6,11 +6,11 @@ class MenusController < ApplicationController
   before_action :set_scope, only: [:index, :show]
 
   def index
-    @deep = true if html_request?
     @menus = Menu.send(@scope).where(account_id: current_account.id)
   end
 
   def show
+    @deep = true if html_request? # View uses JSON template, so get the whole thing.
   end
 
   def new

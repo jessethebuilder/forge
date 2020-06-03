@@ -1,5 +1,24 @@
 <script type="text/template" id="menu_view_template">
-  <h1 class="text-center">
-    <%%= menu.get("name") %>
-  </h1>
+  <%= full_width_container do %>
+    <div class="menu_fields">
+      <div class="form-group">
+        <input type="text" name="name"
+               class="form-control menu_field"
+               placeholder="Name"
+               value="<%%= name %>"/>
+      </div>
+
+      <div class="form-group">
+        <textarea name="description"
+                  class="form-control menu_field"
+                  placeholder="Description"><%%= description %></textarea>
+      </div>
+
+      <div class="form-group">
+
+      </div>
+    </div>
+
+    <div id="groups"></div>
+  <% end %>
 </script>

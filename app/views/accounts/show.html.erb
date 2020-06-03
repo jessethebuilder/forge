@@ -7,15 +7,11 @@
       <%= render partial: 'form', locals: {account: @account} %>
     <% end %>
   </div>
-  <div id="menus">
-    <%= full_width_container do %>
-      <h2>Menus</h2>
-      <%= render partial: 'menus/index', locals: {menus: @account.menus} %>
-    </div>
-  <% end %>
+  <ul id="menu_list" class="link_list">
+    <% @menus.each do |menu| %>
+      <li>
+        <%= link_to menu.name, menu_path(menu) %>
+      </li>
+    <% end %>
+  </ul>
 </div>
-<script>
-  $(document).on("turbolinks:load", function(){
-    setupActivators("#menus", "menu");
-  });
-</script>
