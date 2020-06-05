@@ -19,5 +19,5 @@ import "css/main"
 import MenuApp from "./menu/app"
 window.MenuApp = MenuApp;
 
-const images = require.context("../images", true)
-const imagePath = (name) => images(name, true)
+// const images = require.context("../images", true)
+// const imagePath = (name) => images(name, true)
