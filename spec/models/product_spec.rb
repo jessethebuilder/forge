@@ -25,8 +25,8 @@ describe Product, type: :model do
 
   describe 'Associations' do
     it{ should belong_to :account }
-    it{ should belong_to :group }
-    it{ should belong_to :menu }
+    it{ should belong_to(:group).required(false) }
+    it{ should belong_to(:menu).required(false) }
 
     it{ have_many :order_items }
   end # Associations

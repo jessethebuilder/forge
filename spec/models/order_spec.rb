@@ -10,8 +10,8 @@ describe Order, type: :model do
 
   describe 'Associations' do
     it{ should belong_to :account }
-    it{ should belong_to :menu }
-    it{ should belong_to :customer }
+    it{ should belong_to(:menu).required(false) }
+    it{ should belong_to(:customer).required(false) }
 
     it{ should have_many :order_items }
 

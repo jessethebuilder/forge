@@ -12,19 +12,7 @@ class Product < ApplicationRecord
   validate :product_belongs_to_menu
 
   scope :active, -> { where(active: true) }
-
-
-
-
   scope :inactive, -> { where(active: false) }
-
-
-
-
-
-
-
-
 
   default_scope -> { order(:order) }
 
