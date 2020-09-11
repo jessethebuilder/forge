@@ -27,7 +27,6 @@ describe 'Menu Features', type: :feature do
 
         menu = Menu.last
         menu.name.should == 'name'
-        menu.active.should == false # defaults to true
       end
 
       it 'should redirect to menus#edit' do

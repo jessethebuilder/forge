@@ -4,7 +4,7 @@ describe MenusController, type: :controller do
     @menu = create(:menu, account: @account)
     @group = create(:group, menu: @menu, account: @account)
     @product = create(:product, group: @group, menu: @menu, account: @account)
-  end 
+  end
 
   describe 'INDEX /menus' do
     describe '?scope' do

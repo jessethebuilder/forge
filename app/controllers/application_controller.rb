@@ -59,7 +59,6 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_api_account!
-    authenticate_web_user! && return if request.local? && request.authorization.blank?
     authenticate_api_token || render_api_unauthorized
   end
 

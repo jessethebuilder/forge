@@ -1,0 +1,11 @@
+<%= form_with(model: menu, local: true, class: 'record_form') do |form| %>
+  <%= show_errors(menu) %>
+
+  <div class="form-group">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: 'form-control' %>
+  </div>
+
+  <div class="form-group">
+    <%= form.submit class: 'btn btn-primary' %>
+<% end %>
