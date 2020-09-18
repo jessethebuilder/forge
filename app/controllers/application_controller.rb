@@ -16,9 +16,6 @@ class ApplicationController < ActionController::Base
           },
           status: 401
         }
-        format.html{
-          redirect_to root_url, alert: t('errors.no_auth.resource', resource_type: @resource.class.name)
-        }
       end
     end
   end
@@ -37,9 +34,12 @@ class ApplicationController < ActionController::Base
     @scope = params[:scope] if RECORD_SCOPES.include?(params[:scope])
   end
 
-  def html_request?
-    request.format == :html
-  end
+  # def html_request?
+  # html requests are no longer allowed. They may be useful for administrative
+  # purposes, or managing tokens, but user menu ineractions should be moved to
+  # client apps.
+  #   request.format == :html
+  # end
 
   def json_request?
     request.format == :json
@@ -53,16 +53,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def authenticate_web_user!
-    authenticate_user!
-    @current_account = current_user.account
-  end
+  # def authenticate_web_user!
+  #   authenticate_user!
+  #   @current_account = current_user.account
+  # end
 
   def authenticate_api_account!
-    if request.local? && request.authorization.blank?
-      # The Forge Web use the The Forge API, so auth is handled by the web app.
-      authenticate_web_user! && return
-    end
     authenticate_api_token || render_api_unauthorized
   end
 

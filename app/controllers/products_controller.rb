@@ -1,8 +1,7 @@
 class ProductsController < ApplicationController
-  include ProductsHelper
   before_action :authenticate!
-  before_action :set_product, only: [:show, :update, :destroy, :edit]
-  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
+  before_action :set_product, only: [:show, :update, :destroy]
+  before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
   before_action :set_scope, only: [:index, :show]
 
   def index
@@ -24,27 +23,14 @@ class ProductsController < ApplicationController
   def show
   end
 
-  def new
-    group = Group.find(session[:now_editing_group_id])
-    @product = Product.new(group: group)
-  end
-
-  def edit
-  end
-
   def create
     @product = Product.new(product_params)
     @product.account = current_account
 
     respond_to do |format|
       if @product.save
-        format.html {
-          redirect_to edit_group_path(@product.group),
-          notice: 'Product was successfully created.'
-        }
         format.json { render :show, status: :created, location: @product }
       else
-        format.html { render :new }
         format.json { render json: @product.errors, status: :unprocessable_entity }
       end
     end
@@ -53,13 +39,8 @@ class ProductsController < ApplicationController
   def update
     respond_to do |format|
       if @product.update(product_params)
-        format.html {
-          redirect_to edit_group_path(@product.group),
-          notice: 'Product was successfully updated.'
-        }
         format.json { render :show, status: :ok, location: @product }
       else
-        format.html { render :edit }
         format.json { render json: @product.errors, status: :unprocessable_entity }
       end
     end
@@ -68,10 +49,6 @@ class ProductsController < ApplicationController
   def destroy
     @product.destroy
     respond_to do |format|
-      format.html {
-        redirect_to edit_group_path(@product.group),
-        notice: 'Product was successfully destroyed.'
-      }
       format.json { head :no_content }
     end
   end
