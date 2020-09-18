@@ -1,17 +1,10 @@
 <div id="account">
-  <%= full_width_container do %>
-    <h1>Account</h1>
-  <% end %>
-  <div id="edit_account">
-    <%= full_width_container do %>
-      <%= render partial: 'form', locals: {account: @account} %>
-    <% end %>
+  <div class="container">
+    <div class="row">
+      <div class="col-sm-12">
+        <%= link_to 'Edit Account', edit_account_path(@account), class: 'btn btn-small btn-primary float-right' %>
+        <h1>Account</h1>
+      </div>
+    </div>
   </div>
-  <ul id="menu_list" class="link_list">
-    <% @menus.each do |menu| %>
-      <li>
-        <%= link_to menu.name, menu_path(menu) %>
-      </li>
-    <% end %>
-  </ul>
 </div>

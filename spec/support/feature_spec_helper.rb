@@ -27,4 +27,15 @@ module FeatureSpecHelper
     visit '/groups/new'
     fill_in 'Name', with: 'name'
   end
+
+  def account_min(
+    account_params: attributes_for(:account),
+    credential_params: attributes_for(:credential),
+    user_params: attributes_for(:user)
+  )
+    visit '/'
+    fill_in 'Email', with: account_params[:contact_email]
+    fill_in 'Password', with: user_params[:password]
+    fill_in 'Username', with: credential_params[:username]
+  end
 end

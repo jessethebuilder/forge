@@ -1,7 +1,7 @@
 Order.destroy_all
 Account.destroy_all
 
-a = Account.create!(contact_sms: '3606709312', contact_email: 'jesse@anysoft.us')
+a = Account.create!(contact_sms: '3606709312', contact_email: 'jesse@anysoft.us', name: 'Test Account')
 u = User.create!(email: 'account@test.com', password: ENV.fetch('PASSWORD'), account: a)
 c = Credential.create!(user: u, account: a, username: 'jeff')
 c.update(token: 'test_token')

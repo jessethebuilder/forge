@@ -59,6 +59,10 @@ class ApplicationController < ActionController::Base
   end
 
   def authenticate_api_account!
+    if request.local? && request.authorization.blank?
+      # The Forge Web use the The Forge API, so auth is handled by the web app.
+      authenticate_web_user! && return
+    end
     authenticate_api_token || render_api_unauthorized
   end
 

@@ -1,29 +1,79 @@
-<%= form_with(model: account, local: true, class: 'record_form') do |form| %>
-  <%= show_errors(account) %>
-
-  <div class="form-group">
-    <%= form.label :contact_sms, 'Contact SMS' %>
-    <%= form.text_field :contact_sms, class: 'form-control' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.label :contact_email %>
-    <%= form.text_field :contact_email, class: 'form-control' %>
-  </div>
-
-  <%= content_tag :div, class: 'form-group' do %>
-    <%= content_tag :div, class: 'form-check' do %>
-      <%= form.check_box :always_contact, class: 'form-check-input' %>
-      <%= form.label :always_contact, class: 'form-check-label' %>
+<%= form_with(model: account, local: true) do |form| %>
+  <%= form.fields_for :users do |user_fields| %>
+    <% if account.errors.any? %>
+      <div id="error_explanation">
+        <h2>
+          <%= pluralize(account.errors.count, "error") %>
+          prohibited this Account from being saved:
+        </h2>
+        <ul>
+          <% account.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
     <% end %>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
+          <%= user_fields.label :email %>
+          <%= user_fields.password_field :email, class: 'form-control' %>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <%= user_fields.label :password %>
+          <%= user_fields.password_field :password, class: 'form-control' %>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group">
+          <%= form.label :contact_email %>
+          <%= form.email_field :contact_email, class: 'form-control' %>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="form-group">
+          <%= form.label :contact_sms %>
+          <%= form.phone_field :contact_sms, class: 'form-control' %>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-sm-12">
+        <h4>Credentials</h4>
+      </div>
+    </div>
+    <%= form.fields_for :credentials do |credential_fields| %>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="form-group">
+            <%= credential_fields.label :username %>
+            <%= credential_fields.text_field :username, class: 'form-control' %>
+          </div>
+        </div>
+        <div class="col-sm-6">
+          <div class="form-group">
+            <%= credential_fields.label :token %>
+            <%= credential_fields.text_field :token, class: 'form-control', disabled: true %>
+          </div>
+        </div>
+      </div>
+    <% end %> 
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="form-group">
+          <% if account.new_record? %>
+            <%= form.submit 'Create Account', class: 'btn btn-primary' %>
+          <% else %>
+            <%= form.submit 'Upate Account', class: 'btn btn-primary' %>
+          <% end %>
+        </div>
+      </div>
+    </div>
   <% end %>
-
-  <div class="form-group">
-    <%= form.label :contact_after %> <small>in minutes</small>
-    <%= form.number_field :contact_after, class: 'form-control', placeholder: 'in minutes' %>
-  </div>
-
-  <div class="form-group">
-    <%= form.submit class: 'btn btn-primary' %>
-  </div>
 <% end %>

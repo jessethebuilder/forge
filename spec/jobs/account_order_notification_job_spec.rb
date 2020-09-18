@@ -52,13 +52,7 @@ describe AccountOrderNotificationJob, type: :job do
             .with(@email, @order.id)
     end
 
-    it 'should not send Email notification if contact_email is not on @account' do
-      @account.update(contact_email: nil)
-      @job.perform(:email, @order.id, @sms_body)
-      expect(OrdersMailer).to_not have_received(:new_order)
-    end
-
-    it 'should not send Email notification if contact_email is not on @account' do
+    it 'should not send Email notification if contact_email_after_unseen is nil' do
       @account.update(contact_email_after_unseen: nil)
       @job.perform(:email, @order.id, @sms_body)
       expect(OrdersMailer).to_not have_received(:new_order)

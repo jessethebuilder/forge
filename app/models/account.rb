@@ -4,8 +4,10 @@ class Account < ApplicationRecord
   has_many :groups, dependent: :destroy
   has_many :orders, dependent: :destroy
   has_many :customers, dependent: :destroy
-  has_many :credentials, dependent: :destroy
-  has_many :users, dependent: :destroy
-end
 
-# Account should have a main contact number, which can be called if 
+  has_many :credentials, dependent: :destroy
+  accepts_nested_attributes_for :credentials
+
+  has_many :users, dependent: :destroy
+  accepts_nested_attributes_for :users
+end

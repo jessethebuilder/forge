@@ -6,7 +6,8 @@ def dual_routes_for(*resource_list)
 end
 
 Rails.application.routes.draw do
-  resource :account, only: [:new, :show]
+  resources :accounts, only: [:new, :create, :update, :edit]
+  resource :account, only: [:show]
   root to: 'accounts#new'
 
   resources :products, only: [] do

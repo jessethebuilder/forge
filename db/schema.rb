@@ -20,8 +20,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.jsonb "data", default: {}
     t.string "contact_sms"
     t.string "contact_email"
-    t.integer "contact_sms_after_unseen", default: 10
-    t.integer "contact_email_after_unseen", default: 10
+    t.integer "contact_sms_after_unseen", default: 0
+    t.integer "contact_email_after_unseen", default: 0
+    t.string "name"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end

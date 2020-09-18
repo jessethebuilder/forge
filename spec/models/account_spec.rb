@@ -4,6 +4,7 @@ describe Account, type: :model do
   end
 
   describe 'Validations' do
+    it{ should validate_presence_of :contact_email }
   end # Validations
 
   describe 'Associations' do

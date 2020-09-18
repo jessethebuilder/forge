@@ -3,7 +3,7 @@ describe NewOrderNotificationJob, type: :job do
     @order = create(:order)
     @account = @order.account
     @job = NewOrderNotificationJob.new
-    @minutes = Random.rand(1..100)
+    @seconds = Random.rand(1..100)
 
     allow(SmsNotificationJob).to receive(:perform_in)
     allow(SmsNotificationJob).to receive(:perform_async)
@@ -22,10 +22,10 @@ describe NewOrderNotificationJob, type: :job do
 
     it 'should call AccountOrderNotificationJob for each action' do
       expect(AccountOrderNotificationJob).to receive(:perform_in)
-            .with(22.minutes, :sms, @order.id)
+            .with(22.seconds, :sms, @order.id)
 
       expect(AccountOrderNotificationJob).to receive(:perform_in)
-            .with(10.minutes, :email, @order.id)
+            .with(10.seconds, :email, @order.id)
 
       @job.perform(@order.id)
     end
@@ -34,7 +34,7 @@ describe NewOrderNotificationJob, type: :job do
   describe 'SMS Notification' do
     before do
       @phone = Faker::PhoneNumber.cell_phone
-      @account.update(contact_sms: @phone, contact_email_after_unseen: @minutes)
+      @account.update(contact_sms: @phone, contact_email_after_unseen: @seconds)
       allow(AccountOrderNotificationJob).to receive(:perform_in)
     end
 
@@ -56,7 +56,7 @@ describe NewOrderNotificationJob, type: :job do
   describe 'Email Notification' do
     before do
       @email = Faker::Internet.email
-      @account.update(contact_email_after_unseen: @minutes, contact_email: @mail)
+      @account.update(contact_email_after_unseen: @seconds, contact_email: @mail)
       allow(OrdersMailer).to receive(:new_order).and_call_original
     end
 
