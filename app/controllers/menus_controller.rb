@@ -10,7 +10,6 @@ class MenusController < ApplicationController
   end
 
   def show
-    @deep = true if html_request? # View uses JSON template, so get the whole thing.
   end
 
   def create
@@ -56,6 +55,6 @@ class MenusController < ApplicationController
   def menu_params
     params.require(:menu).permit(
       :name, :description, :data, :reference, :active,
-      :order, :contact_sms, :contact_email)
+      :order, :sms, :email)
   end
 end

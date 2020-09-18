@@ -13,27 +13,27 @@ class NewOrderNotificationJob
   private
 
   def notify_menu
-    unless @menu.contact_sms.blank?
-      SmsNotificationJob.perform_async(@menu.contact_sms, @order.new_order_sms_body)
+    unless @menu.sms.blank?
+      SmsNotificationJob.perform_async(@menu.sms, @order.new_order_sms_body)
     end
 
-    unless @menu.contact_email.blank?
-      OrdersMailer.new_order(@menu.contact_email, @order.id).deliver_now
+    unless @menu.email.blank?
+      OrdersMailer.new_order(@menu.email, @order.id).deliver_now
     end
   end
 
   def notify_account
-    unless @account.contact_sms_after_unseen.blank? || @account.contact_sms.blank?
+    unless @account.sms_after_unseen.blank? || @account.sms.blank?
       AccountOrderNotificationJob.perform_in(
-        @account.contact_sms_after_unseen.seconds,
+        @account.sms_after_unseen.seconds,
         :sms,
         @order.id
       )
     end
 
-    unless @account.contact_email_after_unseen.blank? || @account.contact_email.blank?
+    unless @account.email_after_unseen.blank? || @account.email.blank?
       AccountOrderNotificationJob.perform_in(
-        @account.contact_email_after_unseen.seconds,
+        @account.email_after_unseen.seconds,
         :email,
         @order.id
       )

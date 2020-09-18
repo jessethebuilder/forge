@@ -4,7 +4,8 @@ describe Account, type: :model do
   end
 
   describe 'Validations' do
-    it{ should validate_presence_of :contact_email }
+    it{ should validate_presence_of :email }
+    it{ should validate_uniqueness_of :email }
   end # Validations
 
   describe 'Associations' do
@@ -14,7 +15,6 @@ describe Account, type: :model do
     it{ should have_many :orders }
     it{ should have_many :customers }
     it{ should have_many :credentials }
-    it{ should have_many :users }
   end # Associations
 
   describe 'Attributes' do

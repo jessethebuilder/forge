@@ -1,13 +1,6 @@
 FactoryBot.define do
   factory :account do
-    sequence(:name){ |n| "Account #{n}" }
-    contact_email { Faker::Internet.email }
-  end
-
-  factory :user do
-    account
     sequence(:email){ |n| "test_#{n}@test.com" }
-    password { ENV.fetch('PASSWORD') }
   end
 
   factory :credential do

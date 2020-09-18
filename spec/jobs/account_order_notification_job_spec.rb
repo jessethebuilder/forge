@@ -9,7 +9,7 @@ describe AccountOrderNotificationJob, type: :job do
   describe 'SMS' do
     before do
       @phone = Faker::PhoneNumber.cell_phone
-      @account.update(contact_sms_after_unseen: @minutes, contact_sms: @phone)
+      @account.update(sms_after_unseen: @minutes, sms: @phone)
       allow(SmsNotificationJob).to receive(:perform_async)
     end
 
@@ -20,14 +20,14 @@ describe AccountOrderNotificationJob, type: :job do
             .with(@phone, @order.send(:new_order_sms_body))
     end
 
-    it 'should not send SMS notification if Acocunt has no :contact_sms_after_unseen' do
-      @account.update(contact_sms_after_unseen: nil)
+    it 'should not send SMS notification if Acocunt has no :sms_after_unseen' do
+      @account.update(sms_after_unseen: nil)
       @job.perform(:sms, @order.id)
       expect(SmsNotificationJob).to_not have_received(:perform_async)
     end
 
-    it 'should not send SMS notification if Acocunt has no :contact_sms' do
-      @account.update(contact_sms: nil)
+    it 'should not send SMS notification if Acocunt has no :sms' do
+      @account.update(sms: nil)
       @job.perform(:sms, @order.id)
       expect(SmsNotificationJob).to_not have_received(:perform_async)
     end
@@ -43,7 +43,7 @@ describe AccountOrderNotificationJob, type: :job do
     before do
       allow(OrdersMailer).to receive(:new_order).and_return(double(deliver_now: nil))
       @email = Faker::Internet.email
-      @account.update(contact_email_after_unseen: @minutes, contact_email: @email)
+      @account.update(email_after_unseen: @minutes, email: @email)
     end
 
     it 'should send Email notification to account after specified minutes' do
@@ -52,8 +52,8 @@ describe AccountOrderNotificationJob, type: :job do
             .with(@email, @order.id)
     end
 
-    it 'should not send Email notification if contact_email_after_unseen is nil' do
-      @account.update(contact_email_after_unseen: nil)
+    it 'should not send Email notification if email_after_unseen is nil' do
+      @account.update(email_after_unseen: nil)
       @job.perform(:email, @order.id, @sms_body)
       expect(OrdersMailer).to_not have_received(:new_order)
     end

@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
     if request.format == :json
       authenticate_api_account!
     else
-      authenticate_web_user!
+      # authenticate_web_user!
     end
   end
 
@@ -66,6 +66,7 @@ class ApplicationController < ActionController::Base
     authenticate_with_http_token do |token, options|
       @current_account = Credential.find_by(token: token).account
     end
+
   end
 
   def render_api_unauthorized(realm = "Application")

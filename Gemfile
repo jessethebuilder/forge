@@ -19,8 +19,6 @@ gem 'bootsnap', '>= 1.4.2', require: false
 
 gem 'figaro'
 
-gem 'devise'
-
 gem 'faker'
 
 gem 'rack-cors'

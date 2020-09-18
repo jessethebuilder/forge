@@ -1,6 +1,5 @@
 class Credential < ApplicationRecord
   belongs_to :account
-  belongs_to :user, required: false
 
   validates :username, presence: true, uniqueness: true
   validates :token, presence: true

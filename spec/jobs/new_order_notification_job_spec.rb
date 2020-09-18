@@ -13,10 +13,10 @@ describe NewOrderNotificationJob, type: :job do
   describe 'AccountOrderNotificationJob' do
     before do
       @account.update(
-        contact_sms: '123-456-7890',
-        contact_email: 'jeff@test.com',
-        contact_email_after_unseen: 10,
-        contact_sms_after_unseen: 22
+        sms: '123-456-7890',
+        email: 'jeff@test.com',
+        email_after_unseen: 10,
+        sms_after_unseen: 22
       )
     end
 
@@ -34,17 +34,17 @@ describe NewOrderNotificationJob, type: :job do
   describe 'SMS Notification' do
     before do
       @phone = Faker::PhoneNumber.cell_phone
-      @account.update(contact_sms: @phone, contact_email_after_unseen: @seconds)
+      @account.update(sms: @phone, email_after_unseen: @seconds)
       allow(AccountOrderNotificationJob).to receive(:perform_in)
     end
 
     context '@order has a Menu' do
       before do
         @menu_phone = Faker::PhoneNumber.cell_phone
-        @menu = create(:menu, orders: [@order], contact_sms: @menu_phone)
+        @menu = create(:menu, orders: [@order], sms: @menu_phone)
       end
 
-      it 'should attempt to immediatly notify Menu :contact_sms' do
+      it 'should attempt to immediatly notify Menu :sms' do
         @job.perform(@order.id)
         expect(SmsNotificationJob)
               .to have_received(:perform_async)
@@ -56,7 +56,7 @@ describe NewOrderNotificationJob, type: :job do
   describe 'Email Notification' do
     before do
       @email = Faker::Internet.email
-      @account.update(contact_email_after_unseen: @seconds, contact_email: @mail)
+      @account.update(email_after_unseen: @seconds, email: @mail)
       allow(OrdersMailer).to receive(:new_order).and_call_original
     end
 
@@ -66,13 +66,13 @@ describe NewOrderNotificationJob, type: :job do
       end
       it 'should call send email to Account, is email address is provided' do
         email = Faker::Internet.email
-        @menu.update(contact_email: email)
+        @menu.update(email: email)
         expect(OrdersMailer).to receive(:new_order).with(email, @order.id)
         @job.perform(@order.id)
       end
 
-      it 'should NOT try to send an email, if @account.contact_email is blank' do
-        @menu.update(contact_email: '')
+      it 'should NOT try to send an email, if @account.email is blank' do
+        @menu.update(email: '')
         expect(OrdersMailer).not_to receive(:new_order)
         @job.perform(@order.id)
       end
