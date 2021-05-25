@@ -23,6 +23,7 @@ class NewOrderNotificationJob
   end
 
   def notify_account
+    # TODO Remove "sms_after_unseen" logic.
     unless @account.sms_after_unseen.blank? || @account.sms.blank?
       AccountOrderNotificationJob.perform_in(
         @account.sms_after_unseen.seconds,
@@ -31,6 +32,7 @@ class NewOrderNotificationJob
       )
     end
 
+    # TODO Remove "email_after_unseen" logic.
     unless @account.email_after_unseen.blank? || @account.email.blank?
       AccountOrderNotificationJob.perform_in(
         @account.email_after_unseen.seconds,

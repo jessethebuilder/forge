@@ -18,32 +18,25 @@ class GroupsController < ApplicationController
     @group = Group.new(group_params)
     @group.account = current_account
 
-    respond_to do |format|
-      if @group.save
-        format.json { render :show, status: :created, location: @group }
-      else
-        format.json { render json: @group.errors, status: :unprocessable_entity }
-      end
+    if @group.save
+      render :show, status: :created, location: @group
+    else
+      render json: @group.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    respond_to do |format|
-      if @group.update(group_params)
-        format.json { render :show, status: :ok, location: @group }
-      else
-        format.json { render json: @group.errors, status: :unprocessable_entity }
-      end
+    if @group.update(group_params)
+      render :show, status: :ok, location: @group
+    else
+      render json: @group.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
     @group.products.destroy_all if params[:destroy_products]
     @group.destroy
-
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

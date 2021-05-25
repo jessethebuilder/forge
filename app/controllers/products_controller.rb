@@ -27,30 +27,24 @@ class ProductsController < ApplicationController
     @product = Product.new(product_params)
     @product.account = current_account
 
-    respond_to do |format|
-      if @product.save
-        format.json { render :show, status: :created, location: @product }
-      else
-        format.json { render json: @product.errors, status: :unprocessable_entity }
-      end
+    if @product.save
+      render :show, status: :created, location: @product
+    else
+      render json: @product.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    respond_to do |format|
-      if @product.update(product_params)
-        format.json { render :show, status: :ok, location: @product }
-      else
-        format.json { render json: @product.errors, status: :unprocessable_entity }
-      end
+    if @product.update(product_params)
+      render :show, status: :ok, location: @product
+    else
+      render json: @product.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
     @product.destroy
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

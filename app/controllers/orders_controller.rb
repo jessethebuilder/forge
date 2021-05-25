@@ -4,22 +4,6 @@ class OrdersController < ApplicationController
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
   before_action :set_scope, only: [:index]
 
-  def create
-    @order = Order.new(order_params)
-    @order.account = current_account
-
-    respond_to do |format|
-      if @order.save
-        NewOrderNotificationJob.perform_async(@order.id)
-        payment_processor.charge(@order)
-
-        format.json { render :show, status: :created, location: @order }
-      else
-        format.json { render json: @order.errors, status: :unprocessable_entity }
-      end
-    end
-  end
-
   def index
     @orders = Order.where(account_id: current_account.id)
                    .send(@scope)
@@ -30,22 +14,31 @@ class OrdersController < ApplicationController
   def show
   end
 
+  def create
+    @order = Order.new(order_params)
+    @order.account = current_account
+
+    if @order.save
+      NewOrderNotificationJob.perform_async(@order.id)
+      payment_processor.charge(@order)
+      render :show, status: :created, location: @order
+    else
+      render json: @order.errors, status: :unprocessable_entity
+    end
+  end
+
 
   def update
-    respond_to do |format|
-      if @order.update(order_params)
-        format.json { render :show, status: :ok, location: @order }
-      else
-        format.json { render json: @order.errors, status: :unprocessable_entity }
-      end
+    if @order.update(order_params)
+      render :show, status: :ok, location: @order
+    else
+      render json: @order.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
     @order.destroy
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private

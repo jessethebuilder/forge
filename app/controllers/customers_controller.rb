@@ -14,30 +14,24 @@ class CustomersController < ApplicationController
     @customer = Customer.new(customer_params)
     @customer.account = current_account
 
-    respond_to do |format|
-      if @customer.save
-        format.json { render :show, status: :created, location: @customer }
-      else
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
-      end
+    if @customer.save
+      render :show, status: :created, location: @customer
+    else
+      render json: @customer.errors, status: :unprocessable_entity
     end
   end
 
   def update
-    respond_to do |format|
-      if @customer.update(customer_params)
-        format.json { render :show, status: :ok, location: @customer }
-      else
-        format.json { render json: @customer.errors, status: :unprocessable_entity }
-      end
+    if @customer.update(customer_params)
+      render :show, status: :ok, location: @customer
+    else
+      render json: @customer.errors, status: :unprocessable_entity
     end
   end
 
   def destroy
     @customer.destroy
-    respond_to do |format|
-      format.json { head :no_content }
-    end
+    head :no_content
   end
 
   private
