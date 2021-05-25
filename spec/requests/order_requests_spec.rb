@@ -170,11 +170,27 @@ describe 'Order Requests', type: :request, api: true do
       post '/orders.json', params: @create_params, headers: test_api_headers
     end
 
-    it 'should start Notification Job' do
+    it 'should start Notification Job IF notify is passed as a param' do
+      allow(NewOrderNotificationJob).to receive(:perform_async)
+      post '/orders.json', params: {order: {tip: 10}, notify: true}, headers: test_api_headers
+      expect(NewOrderNotificationJob)
+            .to have_received(:perform_async)
+            .with(Order.order(created_at: :desc).first.id)
+    end
+
+    it 'should NOT start Notification Job IF notify is NOT passed as a param' do
       allow(NewOrderNotificationJob).to receive(:perform_async)
       post '/orders.json', params: {order: {tip: 10}}, headers: test_api_headers
       expect(NewOrderNotificationJob)
-            .to have_received(:perform_async)
+            .not_to have_received(:perform_async)
+            .with(Order.order(created_at: :desc).first.id)
+    end
+
+    it 'should NOT start Notification Job IF notify param is false' do
+      allow(NewOrderNotificationJob).to receive(:perform_async)
+      post '/orders.json', params: {order: {tip: 10}, notify: false}, headers: test_api_headers
+      expect(NewOrderNotificationJob)
+            .not_to have_received(:perform_async)
             .with(Order.order(created_at: :desc).first.id)
     end
 

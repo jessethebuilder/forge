@@ -27,6 +27,8 @@ gem 'twilio-ruby', '~> 5.34.0'
 
 gem 'stripe'
 
+gem 'webpacker'
+
 group :development, :test do
   gem 'byebug', platforms: [:mri, :mingw, :x64_mingw]
   gem 'rspec-rails'

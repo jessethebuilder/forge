@@ -15,4 +15,8 @@ Rails.application.routes.draw do
       # Future home of a refund endopoint
     end
   end
+
+  resource :account
+
+  root to: 'account#new'
 end

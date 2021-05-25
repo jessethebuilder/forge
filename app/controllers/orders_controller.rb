@@ -10,7 +10,8 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       if @order.save
-        NewOrderNotificationJob.perform_async(@order.id)
+        NewOrderNotificationJob.perform_async(@order.id) if params[:notify] == 'true'
+
         payment_processor.charge(@order)
 
         format.json { render :show, status: :created, location: @order }
