@@ -23,20 +23,12 @@ class NewOrderNotificationJob
   end
 
   def notify_account
-    unless @account.sms_after_unseen.blank? || @account.sms.blank?
-      AccountOrderNotificationJob.perform_in(
-        @account.sms_after_unseen.seconds,
-        :sms,
-        @order.id
-      )
+    unless @account.sms.blank?
+      AccountOrderNotificationJob.perform_async(:sms, @order.id)
     end
 
-    unless @account.email_after_unseen.blank? || @account.email.blank?
-      AccountOrderNotificationJob.perform_in(
-        @account.email_after_unseen.seconds,
-        :email,
-        @order.id
-      )
+    unless @account.email.blank?
+      AccountOrderNotificationJob.perform_async(:email, @order.id)
     end
   end
 end

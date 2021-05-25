@@ -21,11 +21,11 @@ describe NewOrderNotificationJob, type: :job do
     end
 
     it 'should call AccountOrderNotificationJob for each action' do
-      expect(AccountOrderNotificationJob).to receive(:perform_in)
-            .with(22.seconds, :sms, @order.id)
+      expect(AccountOrderNotificationJob).to receive(:perform_async)
+            .with(:sms, @order.id)
 
-      expect(AccountOrderNotificationJob).to receive(:perform_in)
-            .with(10.seconds, :email, @order.id)
+      expect(AccountOrderNotificationJob).to receive(:perform_async)
+            .with(:email, @order.id)
 
       @job.perform(@order.id)
     end

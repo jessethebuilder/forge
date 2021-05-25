@@ -1,4 +1,3 @@
-require 'capybara/rspec'
 require 'factory_bot_rails'
 require 'vcr'
 require 'shoulda'
@@ -10,9 +9,6 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.ignore_localhost = true
 end
-
-Capybara.javascript_driver = :selenium_headless
-# Capybara.javascript_driver = :selenium_chrome_headless
 
 RSpec.configure do |config|
   config.include(Shoulda::Matchers::ActiveModel, type: :model)

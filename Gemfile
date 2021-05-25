@@ -1,17 +1,15 @@
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby '2.6.6'
+ruby '2.7.3'
 
-gem 'rails', '~> 6.0.2', '>= 6.0.2.1'
+gem 'rails', '~> 6.1.3.2'
 
 gem 'pg'
 
 gem 'puma', '~> 4.1'
 
 gem 'sass-rails', '>= 6'
-
-# gem 'webpacker', '~> 4.0'
 
 gem 'jbuilder', '~> 2.7'
 
@@ -42,15 +40,11 @@ group :development do
 end
 
 group :test do
-  gem 'selenium-webdriver'
-  gem 'chromedriver-helper'
-  gem 'capybara'
   gem 'factory_bot_rails'
   gem 'shoulda'
   gem 'webmock'
   gem 'guard-rspec'
   gem 'vcr'
   gem 'launchy'
-  gem 'rails-controller-testing'
   gem 'database_cleaner'
 end
