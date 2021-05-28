@@ -5,7 +5,6 @@ FactoryBot.define do
 
   factory :credential do
     account
-    sequence(:username){ |n| "user#{n}" }
     sequence(:token){ |n| "user_token_#{n}" }
   end
 

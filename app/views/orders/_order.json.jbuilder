@@ -19,7 +19,9 @@ json.extract!(
   :menu_id,
   :menu_name,
   :note,
-  :seen,
+  :seen_at,
+  :funded_at,
+  :delivered_at,
   :created_at,
   :updated_at,
 )

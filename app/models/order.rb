@@ -20,8 +20,12 @@ class Order < ApplicationRecord
     transactions.refunds.map(&:amount).sum
   end
 
-  def complete?
-    transactions.first.try(:amount) == self.total ? true : false
+  def funded?
+    !self.funded_at.nil?
+  end
+  
+  def seen?
+    !self.seen_at.nil?
   end
 
   def menu_name

@@ -103,8 +103,7 @@ describe 'Order Requests', type: :request, api: true do
 
   describe 'POST /orders' do
     before do
-      @create_params = {
-        order: attributes_for(:order).merge({reference: 'reference'})}
+      @create_params = {order: attributes_for(:order)}
     end
 
     it 'should create a Order' do
@@ -198,8 +197,7 @@ describe 'Order Requests', type: :request, api: true do
       before do
         @product = create(:product)
         @order_item_params = {product_id: @product.id, amount: @product.price}
-        @create_params[:order][:items] = [@order_item_params]
-        # @create_params[:order][:order_items_attributes] = [@order_item_params]
+        @create_params[:order][:order_items] = [@order_item_params]
       end
 
       it 'should create a new OrderItem' do
@@ -257,10 +255,9 @@ describe 'Order Requests', type: :request, api: true do
 
   describe 'PUT /orders/:id' do
     before do
-
       @update_params = {
         order: {
-          reference: @order.reference.to_s + " the Third Reference!!"
+          note: "A Note!"
         }
       }
     end
@@ -270,11 +267,13 @@ describe 'Order Requests', type: :request, api: true do
         put "/orders/#{@order.id}.json",
             params: @update_params,
             headers: test_api_headers
-       }.to change{ @order.reload.reference }
-        .to(@update_params[:order][:reference])
+       }.to change{ @order.reload.note }
+        .to(@update_params[:order][:note])
     end
 
     it  'should return Order data' do
+      pending 'Finalize order shape'
+
       put "/orders/#{@order.id}.json",
           params: @update_params,
           headers: test_api_headers

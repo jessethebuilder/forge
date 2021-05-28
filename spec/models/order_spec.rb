@@ -18,19 +18,6 @@ describe Order, type: :model do
     it{ should have_many :transactions }
   end # Associations
 
-  describe 'Attributes' do
-    specify ':active defaults to true' do
-      @order.active.should == true
-    end
-
-    specify ':seen defaults to false' do
-      @order.seen.should == false
-    end
-  end # Attributes
-
-  describe 'Behaviors' do
-  end # Behaviors
-
   describe 'Methods' do
     describe 'Money Methods' do
       before do
@@ -63,15 +50,34 @@ describe Order, type: :model do
           @order.refund_total.should == -20
         end
       end
+
+      describe '#seen?' do
+        it 'should return true of there is a :seen_at' do
+          @order.seen_at = Time.now
+          @order.seen?.should == true
+        end
+
+        it 'should return false if :seen_at is nil (default)' do
+          @order.seen?.should == false
+        end
+      end # seen?
     end
 
-    describe '#complete?' do
+    describe '#funded?' do
       it 'should return true if a positive transation exists matching :total' do
         @order.save!
         create(:order_item, order: @order)
         expect{ create(:transaction, order: @order, amount: @order.total) }
-              .to change{ @order.reload.complete? }.from(false).to(true)
+              .to change{ @order.reload.funded? }.from(false).to(true)
       end
+    end
+
+    describe '#is_charge?' do
+
+    end
+
+    describe '#is_refund?' do
+
     end
   end # Methods
 

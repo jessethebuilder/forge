@@ -8,7 +8,6 @@ class CreateOrders < ActiveRecord::Migration[6.0]
       t.datetime :seen_at
       t.datetime :delivered_at
       t.datetime :funded_at
-      t.datetime :refunded_at
 
       t.timestamps
     end

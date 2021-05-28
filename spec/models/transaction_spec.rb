@@ -33,7 +33,7 @@ describe Transaction, type: :model do
         @charge.errors[:refund].should == ['cannot be the first Transaction on an Order']
       end
 
-      context 'After a Charge' do
+      context 'After a Refund' do
         before do
           @charge.save!
         end
@@ -46,12 +46,9 @@ describe Transaction, type: :model do
         end
 
         it 'must be less than the amount of ALL negative Refunds' do
-          first_refund = build(:refund, order: @order)
-          first_refund.amount = -@order.total
-          first_refund.save!
+          first_refund = create(:refund, order: @order, amount: -@order.total)
 
-          second_refund = build(:refund, order: @order)
-          second_refund.amount = -0.01
+          second_refund = build(:refund, order: @order, amount: -1)
 
           second_refund.valid?.should == false
           second_refund.errors[:amount].should == ['cannot be less than Order total']
@@ -68,6 +65,19 @@ describe Transaction, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
+    describe ' Updating the Order' do
+      describe ':funded_at' do
+        specify 'creating a charge transaction should updated funded_at' do
+          time = Time.now
+          allow(Time).to receive(:now).and_return(time)
+
+          charge = build(:charge, order: @order)
+
+          expect{ charge.save! }.to change{ @order.funded_at }
+                .from(nil).to(time)
+        end
+      end
+    end # Updating the Order
   end # Behaviors
 
   describe 'Methods' do

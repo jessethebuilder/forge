@@ -20,14 +20,9 @@ class OrdersController < ApplicationController
     end
   end
 
-  def order_search(q)
-    {
-      
-    }
-  end
-
   def index
     search = order_search(params[:q])
+
     @orders = Order.where(account_id: current_account.id)
                    .where(search)
                    .order(created_at: :desc)
@@ -79,5 +74,19 @@ class OrdersController < ApplicationController
 
   def payment_processor
     @payment_processor ||= PaymentProcessor.new
+  end
+
+  def order_search(q)
+    search = {}
+
+    q[:created_before] = q[:created_before] if q[:created_before]
+    q[:created_after] = q[:created_after] if q[:created_after]
+
+    if ( created_on = Date.parse(q[:created_on]) )
+      q[:created_after] = created_on.beginning_of_day
+      q[:created_before] = created_on.end_of_day
+    end
+
+    return search
   end
 end

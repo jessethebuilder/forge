@@ -20,13 +20,14 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.jsonb "data", default: {}
     t.string "sms"
     t.string "email"
+    t.string "stripe_key"
+    t.string "stripe_secret"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "credentials", force: :cascade do |t|
     t.string "token"
-    t.string "username"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -34,10 +35,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   end
 
   create_table "customers", force: :cascade do |t|
-    t.string "email"
     t.string "name"
+    t.string "email"
     t.string "phone"
-    t.string "reference"
     t.jsonb "data", default: {}
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
@@ -49,9 +49,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "name"
     t.text "description"
     t.integer "order"
-    t.string "reference"
     t.jsonb "data", default: {}
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -63,9 +63,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   create_table "menus", force: :cascade do |t|
     t.string "name"
     t.text "description"
-    t.string "reference"
     t.jsonb "data", default: {}
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.string "sms"
     t.string "email"
     t.datetime "created_at", precision: 6, null: false
@@ -75,7 +75,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   end
 
   create_table "order_items", force: :cascade do |t|
-    t.float "amount"
+    t.integer "amount"
     t.jsonb "data", default: {}
     t.string "note"
     t.datetime "created_at", precision: 6, null: false
@@ -88,12 +88,13 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
 
   create_table "orders", force: :cascade do |t|
     t.jsonb "data", default: {}
-    t.string "reference"
     t.string "note"
     t.float "tip", default: 0.0
     t.float "tax", default: 0.0
-    t.boolean "active", default: true
-    t.boolean "seen", default: false
+    t.datetime "seen_at"
+    t.datetime "delivered_at"
+    t.datetime "funded_at"
+    t.datetime "refunded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -108,10 +109,10 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "name"
     t.text "description"
     t.integer "order"
-    t.float "price"
+    t.integer "price"
     t.jsonb "data", default: {}
-    t.string "reference"
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -123,8 +124,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.float "amount"
-    t.string "reference"
+    t.integer "amount"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "order_id"
@@ -139,4 +139,5 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "accounts"
   add_foreign_key "products", "accounts"
+  add_foreign_key "transactions", "orders"
 end

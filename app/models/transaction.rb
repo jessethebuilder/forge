@@ -6,9 +6,24 @@ class Transaction < ApplicationRecord
   scope :refunds, -> { where('amount < 0') }
   scope :charges, -> { where('amount >= 0') }
 
+  def is_charge?
+    amount >= 0
+  end
+
+  def is_refund?
+    amount < 0
+  end
+
   validate :validate_transaction
 
+  after_save :update_order
+
   private
+
+  def update_order
+    return unless is_charge?
+    order.update(funded_at: Time.now)
+  end
 
   def validate_transaction
     # There are 2 types of Transactions:
@@ -16,7 +31,7 @@ class Transaction < ApplicationRecord
     # - Refunds: which must be negative, and must be in an amount that is less
     #   than the total all all other negative transactions.
     return unless order
-    amount < 0 ? validate_refund : validate_charge
+    is_charge? ? validate_charge : validate_refund
   end
 
   def validate_refund
