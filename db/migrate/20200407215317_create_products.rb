@@ -4,10 +4,10 @@ class CreateProducts < ActiveRecord::Migration[6.0]
       t.string :name
       t.text :description
       t.integer :order
-      t.float :price
+      t.integer :price
       t.jsonb :data, default: {}
-      t.string :reference
       t.boolean :active, default: true
+      t.boolean :archived, default: false
 
       t.timestamps
     end

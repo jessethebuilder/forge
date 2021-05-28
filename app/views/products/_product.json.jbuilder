@@ -6,7 +6,6 @@ json.extract!(
   :order,
   :price,
   :data,
-  :reference,
   :active,
   :created_at,
   :updated_at,

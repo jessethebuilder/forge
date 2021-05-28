@@ -2,7 +2,6 @@ class OrdersController < ApplicationController
   before_action :authenticate!
   before_action :set_order, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
-  before_action :set_scope, only: [:index]
 
   def create
     @order = Order.new(order_params)
@@ -21,11 +20,19 @@ class OrdersController < ApplicationController
     end
   end
 
+  def order_search(q)
+    {
+      
+    }
+  end
+
   def index
+    search = order_search(params[:q])
     @orders = Order.where(account_id: current_account.id)
-                   .send(@scope)
+                   .where(search)
                    .order(created_at: :desc)
                    .includes(:order_items)
+                   .includes(:menu)
   end
 
   def show
@@ -57,7 +64,7 @@ class OrdersController < ApplicationController
   end
 
   def order_params
-    p = params.require(:order).permit(
+    params.require(:order).permit(
       :note,
       :customer_id,
       :menu_id,
@@ -66,13 +73,8 @@ class OrdersController < ApplicationController
       :active,
       :tip,
       :tax,
-      items: [:product_id, :note, :amount]    )
-    # Move :items to :order_items_attributes to make the API cleaner, but still
-    # conforms to the Rails conventions.
-    p[:order_items_attributes] = p[:items] if p[:items]
-    p.delete(:items)
-
-    return p
+      order_items: [:product_id, :note, :amount]
+    )
   end
 
   def payment_processor

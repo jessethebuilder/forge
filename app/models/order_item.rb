@@ -7,13 +7,17 @@ class OrderItem < ApplicationRecord
   validate :product_is_active, on: :create
   validate :product_price_is_amount, on: :create
 
+  def product_name
+    product.name
+  end
 
+  def group
+    product&.group
+  end
 
-
-
-
-
-
+  def group_name
+    group&.name
+  end
 
   private
 

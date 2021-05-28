@@ -24,22 +24,7 @@ class Order < ApplicationRecord
     transactions.first.try(:amount) == self.total ? true : false
   end
 
-  def new_order_sms_body
-    text = ["---- New Order ----"]
-    text << "for #{menu.name}" if menu
-    text << "Created: #{created_at}"
-    text << "\n-- ITEMS --\n"
-    order_items.each_with_index do |item, i|
-      product = item.product
-      group = product.group
-      text << "Group: #{group.name}" unless group.blank?
-      text << "Product: #{product.name}"
-      text << "NOTE: #{item.note}" unless item.note.blank?
-      text << "--------\n"
-    end
-
-    text.join("\n")
+  def menu_name
+    menu&.name
   end
-
-  scope :active, -> { where(active: true) }
 end

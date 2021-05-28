@@ -1,6 +1,6 @@
 json.id order.id
 
-json.items do
+json.order_items do
   json.array!(
     order.order_items,
     partial: "order_items/order_item",
@@ -15,9 +15,11 @@ json.extract!(
   :tax,
   :tip,
   :data,
-  :reference,
+  :customer_id,
+  :menu_id,
+  :menu_name,
+  :note,
+  :seen,
   :created_at,
   :updated_at,
-  :customer_id,
-  :menu_id
 )

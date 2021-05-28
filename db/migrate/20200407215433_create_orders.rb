@@ -2,12 +2,13 @@ class CreateOrders < ActiveRecord::Migration[6.0]
   def change
     create_table :orders do |t|
       t.jsonb :data, default: {}
-      t.string :reference
       t.string :note
       t.float :tip, default: 0.0
       t.float :tax, default: 0.0
-      t.boolean :active, default: true
-      t.boolean :seen, default: false
+      t.datetime :seen_at
+      t.datetime :delivered_at
+      t.datetime :funded_at
+      t.datetime :refunded_at
 
       t.timestamps
     end

@@ -1,4 +1,6 @@
 describe NewOrderNotificationJob, type: :job do
+  include SmsHelper
+
   before do
     @order = create(:order)
     @account = @order.account
@@ -18,14 +20,14 @@ describe NewOrderNotificationJob, type: :job do
     it 'should call SmsNotificationJob if @account provides an :sms' do
       @account.update(sms: '321-123-1234')
       expect(SmsNotificationJob).to receive(:perform_async)
-            .with(@account.sms, @order.new_order_sms_body)
+            .with(@account.sms, new_order_sms_body(@order))
 
       @job.perform(@order.id)
     end
 
     it 'should NOT call SmsNotificationJob if no :sms is provided' do
       expect(SmsNotificationJob).not_to receive(:perform_async)
-            .with(@account.sms, @order.new_order_sms_body)
+            .with(@account.sms, new_order_sms_body(@order))
 
       @job.perform(@order.id)
     end
@@ -47,7 +49,7 @@ describe NewOrderNotificationJob, type: :job do
         @job.perform(@order.id)
         expect(SmsNotificationJob)
               .to have_received(:perform_async)
-              .with(@menu_phone, @order.send(:new_order_sms_body))
+              .with(@menu_phone, new_order_sms_body(@order))
       end
     end # has Menu
   end # SMS

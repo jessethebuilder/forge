@@ -1,5 +1,6 @@
 class NewOrderNotificationJob
   include Sidekiq::Worker
+  include SmsHelper
 
   def perform(order_id)
     @order = Order.find(order_id)
@@ -18,7 +19,7 @@ class NewOrderNotificationJob
     end
 
     unless @menu.sms.blank?
-      SmsNotificationJob.perform_async(@menu.sms, @order.new_order_sms_body)
+      SmsNotificationJob.perform_async(@menu.sms, new_order_sms_body(@order))
     end
   end
 
@@ -26,7 +27,7 @@ class NewOrderNotificationJob
     OrdersMailer.new_order(@account.email, @order.id).deliver_now
 
     unless @account.sms.blank?
-      SmsNotificationJob.perform_async(@account.sms, @order.new_order_sms_body)
+      SmsNotificationJob.perform_async(@account.sms, new_order_sms_body(@order))
     end
   end
 end

@@ -6,7 +6,7 @@ class SmsNotificationJob
       from: ENV.fetch('TWILIO_OUTGOING_NUMBER'),
       to: to,
       body: body
-    ) 
+    )
   end
 
   def twilio_client
