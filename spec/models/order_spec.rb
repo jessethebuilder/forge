@@ -50,18 +50,7 @@ describe Order, type: :model do
           @order.refund_total.should == -20
         end
       end
-
-      describe '#seen?' do
-        it 'should return true of there is a :seen_at' do
-          @order.seen_at = Time.now
-          @order.seen?.should == true
-        end
-
-        it 'should return false if :seen_at is nil (default)' do
-          @order.seen?.should == false
-        end
-      end # seen?
-    end
+    end # Money Methods
 
     describe '#funded?' do
       it 'should return true if a positive transation exists matching :total' do
@@ -72,13 +61,59 @@ describe Order, type: :model do
       end
     end
 
-    describe '#is_charge?' do
+    describe '#charge?' do
 
     end
 
-    describe '#is_refund?' do
+    describe '#refund?' do
 
     end
+
+    describe '#seen?' do
+      it 'should return true of there is a :seen_at' do
+        @order.seen_at = Time.now
+        @order.seen?.should == true
+      end
+
+      it 'should return false if :seen_at is nil (default)' do
+        @order.seen?.should == false
+      end
+    end # seen?
+
+    describe '#see' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+      end
+
+      it 'should set seen_at to Time.now' do
+        expect{ @order.see }.to change{ @order.seen_at }.from(nil).to(@time)
+      end
+    end # see
+
+    describe '#unsee' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+        @order.update(seen_at: @time)
+      end
+
+      it 'should set seen_at to nil' do
+        expect{ @order.unsee }.to change{ @order.seen_at }.from(@time).to(nil)
+      end
+    end # unsee
+
+    describe '#see=' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+      end
+
+      it 'should set seen_at to nil if false' do
+        @order.update(seen_at: @time)
+        expect{ @order.see = false }.to change{ @order.seen_at }.from(@time).to(nil)
+      end
+    end # see=
   end # Methods
 
   describe 'Class Methods' do

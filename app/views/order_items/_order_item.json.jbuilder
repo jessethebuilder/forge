@@ -7,6 +7,7 @@ json.extract!(
   :order_id,
   :product_id,
   :product_name,
+  :group_id,
   :group_name,
   :created_at,
   :updated_at

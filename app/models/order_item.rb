@@ -19,6 +19,10 @@ class OrderItem < ApplicationRecord
     group&.name
   end
 
+  def group_id
+    group&.id
+  end
+
   private
 
   def product_is_active

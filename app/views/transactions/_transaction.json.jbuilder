@@ -1,0 +1,10 @@
+json.extract!(
+  transaction,
+  :id,
+  :amount,
+  :transaction_type,
+  :order_id,
+  :stripe_id,
+  :created_at,
+  :updated_at
+)

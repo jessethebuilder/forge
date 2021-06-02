@@ -1,28 +1,48 @@
 class Transaction < ApplicationRecord
+  attr_writer :card_number, :card_expiration, :card_ccv
+
   belongs_to :order
 
   validates :amount, presence: true, numericality: true
 
   scope :refunds, -> { where('amount < 0') }
-  scope :charges, -> { where('amount >= 0') }
+  scope :charges, -> { where('amount > 0') }
 
-  def is_charge?
-    amount >= 0
+  def charge!
+
   end
 
-  def is_refund?
+  def refund!
+
+  end
+
+  def charge?
+    amount > 0
+  end
+
+  def refund?
     amount < 0
+  end
+
+  def transaction_type
+    charge? ? 'charge' : 'refund'
   end
 
   validate :validate_transaction
 
-  after_save :update_order
+  before_validation :set_full_amount_if_first_transaction
+  before_create :execute_transaction
 
   private
 
-  def update_order
-    return unless is_charge?
-    order.update(funded_at: Time.now)
+  def execute_transaction
+    send("#{transaction_type}!")
+  end
+
+  def set_full_amount_if_first_transaction
+    # To avoid API consumers from having to calculate a total.
+    return if !amount.nil? || order.nil? || order.transactions.count > 0
+    self.amount = order.total
   end
 
   def validate_transaction
@@ -30,8 +50,11 @@ class Transaction < ApplicationRecord
     # - Charges: which must be positive in the amount of the Order total.
     # - Refunds: which must be negative, and must be in an amount that is less
     #   than the total all all other negative transactions.
-    return unless order
-    is_charge? ? validate_charge : validate_refund
+    return unless order && self.new_record?
+
+    errors.add(:amount, 'cannot be zero') && return if amount == 0
+
+    charge? ? validate_charge : validate_refund
   end
 
   def validate_refund
@@ -42,7 +65,7 @@ class Transaction < ApplicationRecord
   def validate_refund_is_not_first
     # Refund cannot be the first Transaction added to Order.
     if order.transactions.empty?
-      errors.add(:refund, 'cannot be the first Transaction on an Order')
+      errors.add(:amount, 'a refund cannot be the first Transaction on an Order')
     end
   end
 
@@ -60,9 +83,8 @@ class Transaction < ApplicationRecord
 
   def validate_charge_is_first
     # Only one Charge is allowed, and it must be the first Transaction
-    unless order.transactions.empty?
-      errors.add(:charge, 'must be the first Transaction on an Order')
-    end
+    return if order.transactions.count == 0
+    errors.add(:charge, 'must be the first Transaction on an Order')
   end
 
   def validate_amount_matches_order_total

@@ -7,13 +7,14 @@ class Order < ApplicationRecord
   accepts_nested_attributes_for :order_items
 
   has_many :transactions
+  accepts_nested_attributes_for :transactions
 
   def total
     subtotal + tip + tax
   end
 
   def subtotal
-    order_items.map(&:amount).sum.to_f
+    order_items.map(&:amount).sum
   end
 
   def refund_total
@@ -21,11 +22,23 @@ class Order < ApplicationRecord
   end
 
   def funded?
-    !self.funded_at.nil?
+    transactions.charges.count == 1
   end
-  
+
   def seen?
-    !self.seen_at.nil?
+    !seen_at.nil?
+  end
+
+  def see
+    self.seen_at = Time.now
+  end
+
+  def unsee
+    self.seen_at = nil
+  end
+
+  def see=(boolean)
+    boolean ? see : unsee
   end
 
   def menu_name

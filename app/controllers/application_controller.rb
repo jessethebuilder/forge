@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::Base
-  # Need method to prevent scopes from going to Index pages when they should go to menus/show or groups/show
-  # Should just bounce them back to root, as those routes would only be discovered by typing in.
+  skip_before_action :verify_authenticity_token
+  # , if: :json_request?
+
   RECORD_SCOPES = %w|all active inactive|
 
   protected
@@ -42,6 +43,7 @@ class ApplicationController < ActionController::Base
   # end
 
   def json_request?
+    # byebug
     request.format == :json
   end
 
@@ -49,6 +51,7 @@ class ApplicationController < ActionController::Base
     if request.format == :json
       authenticate_api_account!
     else
+      raise StandardError, 'WWW Not Implemented'
       # authenticate_web_user!
     end
   end

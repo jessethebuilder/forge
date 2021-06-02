@@ -7,24 +7,36 @@ describe 'Order Requests', type: :request, api: true do
     @order = create(:order, account: @account, menu: @menu, customer: @customer)
   end
 
+  def order_response(order, updates = {})
+    base = {
+      id: order.id,
+      order_items: order.order_items,
+      transactions: order.transactions,
+      total: order.total,
+      subtotal: order.subtotal,
+      tax: order.tax,
+      tip: order.tip,
+      data: order.data,
+      customer_id: order.customer&.id,
+      menu_id: order.menu&.id,
+      menu_name: order.menu_name,
+      note: order.note,
+      seen_at: order.seen_at,
+      delivered_at: order.delivered_at,
+      created_at: order.created_at,
+      updated_at: order.updated_at
+    }
+
+    updates.each{ |k, v| base[k] = v }
+
+    return base
+  end
+
   describe 'GET /orders' do
     it 'should return an array of Orders' do
       get '/orders.json', headers: test_api_headers
       response.body.should == [
-        {
-          id: @order.id,
-          items: [],
-          total: 0.0,
-          subtotal: 0.0,
-          tax: 0.0,
-          tip: 0.0,
-          data: {},
-          reference: nil,
-          created_at: @order.created_at,
-          updated_at: @order.updated_at,
-          customer_id: @customer.id,
-          menu_id: @menu.id,
-        }
+        order_response(@order)
       ].to_json
     end
 
@@ -36,31 +48,74 @@ describe 'Order Requests', type: :request, api: true do
       response_data.count.should == 1
       response_data.first['id'].should == @order.id
     end
+
+    describe 'Querying' do
+      describe 'created_after' do
+        it 'should return orders created_after the provided datetime' do
+          new_order = create(:order, account: @account)
+          @order.update(created_at: Time.parse('2020-12-31'))
+
+          get URI.encode("/orders.json?q[created_after]=2021-01-01"), headers: test_api_headers
+
+          response_data = JSON.parse(response.body)
+          response_data.count.should == 1
+          response_data.first['id'].should == new_order.id
+        end
+      end # created_after
+
+      describe 'created_before' do
+        it 'should return orders created_before the provided datetime' do
+          new_order = create(:order, account: @account)
+          @order.update(created_at: Time.parse('2020-12-30'))
+
+          get URI.encode("/orders.json?q[created_before]=2021-01-01"), headers: test_api_headers
+
+          response_data = JSON.parse(response.body)
+          response_data.count.should == 1
+          response_data.first['id'].should == @order.id
+        end
+      end # created_before
+
+      describe 'created_on' do
+        it 'should return orders created_on the provided date' do
+          date = Date.parse('2021-01-01')
+          new_order = create(:order, account: @account)
+          new_order.update(created_at: date + 1.day)
+          old_order = create(:order, account: @account)
+          old_order.update(created_at: date - 1.day)
+          @order.update(created_at: date)
+
+          get URI.encode("/orders.json?q[created_on]=2021-01-01"), headers: test_api_headers
+
+          response_data = JSON.parse(response.body)
+          response_data.count.should == 1
+          response_data.first['id'].should == @order.id
+        end
+      end # created_on
+    end # Querying
+
+    describe 'Paginating' do
+      it 'should return the number of records specified by the "per_page" param' do
+        2.times{ create(:order, account:@account) }
+
+        get URI.encode("/orders.json?page=1&per_page=2"), headers: test_api_headers
+        JSON.parse(response.body).count.should == 2
+
+        get URI.encode("/orders.json?page=2&per_page=2"), headers: test_api_headers
+        JSON.parse(response.body).count.should == 1
+      end
+    end # Paginating
   end # Index
 
   describe 'GET /orders/:id' do
     it 'should return Order data' do
       @order.update(
-        data: {hello: 'world'},
-        reference: 'reference'
+        data: {hello: 'world'}
       )
 
       get "/orders/#{@order.id}.json", headers: test_api_headers
 
-      response.body.should == {
-        id: @order.id,
-        items: [],
-        total: 0.0,
-        subtotal: 0.0,
-        tax: 0.0,
-        tip: 0.0,
-        data: {hello: 'world'},
-        reference: 'reference',
-        created_at: @order.created_at,
-        updated_at: @order.updated_at,
-        customer_id: @customer.id,
-        menu_id: @menu.id,
-      }.to_json
+      response.body.should == order_response(@order, data: {hello: 'world'}).to_json
     end
 
     specify 'Only Orders of this Account may be fetched' do
@@ -82,28 +137,29 @@ describe 'Order Requests', type: :request, api: true do
     end
 
     it 'should return :tax' do
-      @order.update(tax: 1.1)
+      @order.update(tax: 11)
       get "/orders/#{@order.id}.json", headers: test_api_headers
-      JSON.parse(response.body)['tax'].should == 1.1
+      JSON.parse(response.body)['tax'].should == 11
     end
 
     it 'should return subtotal' do
-      @order.order_items << create(:order_item, product: create(:product, price: 10.0))
+      @order.order_items << create(:order_item, product: create(:product, price: 10))
       get "/orders/#{@order.id}.json", headers: test_api_headers
-      JSON.parse(response.body)['subtotal'].should == 10.0
+      JSON.parse(response.body)['subtotal'].should == 10
     end
 
     it 'should return total' do
-      @order.update(tax: 10.0, tip: 10.0)
-      @order.order_items << create(:order_item, product: create(:product, price: 10.0))
+      @order.update(tax: 10, tip: 10)
+      @order.order_items << create(:order_item, product: create(:product, price: 10))
       get "/orders/#{@order.id}.json", headers: test_api_headers
-      JSON.parse(response.body)['total'].should == 30.0
+      JSON.parse(response.body)['total'].should == 30
     end
   end # Show
 
   describe 'POST /orders' do
     before do
-      @create_params = {order: attributes_for(:order)}
+      @note = Faker::Lorem.paragraph
+      @create_params = {order: attributes_for(:order).merge({note: @note})}
     end
 
     it 'should create a Order' do
@@ -114,31 +170,17 @@ describe 'Order Requests', type: :request, api: true do
     it 'should return Order data' do
       post '/orders.json', params: @create_params, headers: test_api_headers
       created_order = Order.last
-
-      response.body.should == {
-        id: created_order.id,
-        items: [],
-        total: 0.0,
-        subtotal: 0.0,
-        tax: 0.0,
-        tip: 0.0,
-        data: {},
-        reference: 'reference',
-        created_at: created_order.created_at,
-        updated_at: created_order.updated_at,
-        customer_id: nil,
-        menu_id: nil,
-      }.to_json
+      response.body.should == order_response(created_order).to_json
     end
 
     it 'should save :tip' do
-      post '/orders.json', params: {order: {tip: 22.13}}, headers: test_api_headers
-      Order.last.tip.should == 22.13
+      post '/orders.json', params: {order: {tip: 2213}}, headers: test_api_headers
+      Order.last.tip.should == 2213
     end
 
     it 'should save :tax' do
-      post '/orders.json', params: {order: {tax: 0.42}}, headers: test_api_headers
-      Order.last.tax.should == 0.42
+      post '/orders.json', params: {order: {tax: 42}}, headers: test_api_headers
+      Order.last.tax.should == 42
     end
 
     it 'should accept menu_id as a param' do
@@ -162,11 +204,6 @@ describe 'Order Requests', type: :request, api: true do
     it 'should set @order.account to @account' do
       post '/orders.json', params: @create_params, headers: test_api_headers
       Order.last.account.should == @account
-    end
-
-    it 'should call PaymentProcessor' do
-      expect_any_instance_of(PaymentProcessor).to receive(:charge)
-      post '/orders.json', params: @create_params, headers: test_api_headers
     end
 
     it 'should start Notification Job IF notify is passed as a param' do
@@ -193,6 +230,18 @@ describe 'Order Requests', type: :request, api: true do
             .with(Order.order(created_at: :desc).first.id)
     end
 
+    describe 'see' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+      end
+
+      specify 'if see=true is passed as param, update @order seen_at to Now' do
+        post '/orders.json', params: {order: {see: true}}, headers: test_api_headers
+        Order.last.seen_at.strftime("%FT%T").should == @time.strftime("%FT%T")
+      end
+    end
+
     describe 'OrderItems' do
       before do
         @product = create(:product)
@@ -213,6 +262,32 @@ describe 'Order Requests', type: :request, api: true do
       specify 'new OrderItem should be associated with @product' do
         post '/orders.json', params: @create_params, headers: test_api_headers
         OrderItem.last.product.should == @product
+      end
+
+      it 'should return Transaction data' do
+        post '/orders.json', params: @create_params, headers: test_api_headers
+
+        order = Order.last
+        order_item = order.order_items.last
+
+        response.body.should == order_response(
+          order,
+          order_items: [
+            {
+              id: order_item.id,
+              amount: order_item.amount,
+              note: nil,
+              data: {},
+              order_id: order.id,
+              product_id: @product.id,
+              product_name: @product.name,
+              group_id: nil,
+              group_name: nil,
+              created_at: order_item.created_at,
+              updated_at: order_item.updated_at
+            }
+          ]
+        ).to_json
       end
 
       describe 'Commerce Errors' do
@@ -250,71 +325,107 @@ describe 'Order Requests', type: :request, api: true do
           end
         end
       end # Commerce Errors
-    end
+    end # :order_items
+
+    describe ':transactions' do
+      before do
+        @product = create(:product)
+
+        @order_item_params = {product_id: @product.id, amount: @product.price}
+        @create_params[:order][:order_items] = [@order_item_params]
+
+        @transaction_params = attributes_for(:charge, amount: nil)
+        @create_params[:order][:transactions] = [@transaction_params]
+      end
+
+      it 'should return Transaction data' do
+        post '/orders.json', params: @create_params, headers: test_api_headers
+
+        order = Order.last
+        transaction = order.transactions.last
+        order_item = order.order_items.last
+
+        response.body.should == order_response(
+          order,
+          order_items: [
+            {
+              id: order_item.id,
+              amount: order_item.amount,
+              note: nil,
+              data: {},
+              order_id: order.id,
+              product_id: @product.id,
+              product_name: @product.name,
+              group_id: nil,
+              group_name: nil,
+              created_at: order_item.created_at,
+              updated_at: order_item.updated_at
+            }
+          ],
+          transactions: [
+            {
+              id: transaction.id,
+              amount: transaction.amount,
+              transaction_type: 'charge',
+              order_id: order.id,
+              stripe_id: nil,
+              created_at: transaction.created_at,
+              updated_at: transaction.updated_at
+            }
+          ]
+        ).to_json
+      end
+    end # Transactions
   end # Create
 
-  describe 'PUT /orders/:id' do
-    before do
-      @update_params = {
-        order: {
-          note: "A Note!"
-        }
-      }
-    end
-
-    it 'should update @order' do
-      expect{
-        put "/orders/#{@order.id}.json",
-            params: @update_params,
-            headers: test_api_headers
-       }.to change{ @order.reload.note }
-        .to(@update_params[:order][:note])
-    end
-
-    it  'should return Order data' do
-      pending 'Finalize order shape'
-
-      put "/orders/#{@order.id}.json",
-          params: @update_params,
-          headers: test_api_headers
-
-      response.body.should == {
-        id: @order.reload.id,
-        items: [],
-        total: 0.0,
-        subtotal: 0.0,
-        tax: 0.0,
-        tip: 0.0,
-        data: {},
-        reference: @update_params[:order][:reference],
-        created_at: @order.created_at,
-        updated_at: @order.updated_at,
-        customer_id: @customer.id,
-        menu_id: @menu.id,
-      }.to_json
-    end
-
-    it 'should return code ' do
-      put "/orders/#{@order.id}.json",
-          params: @update_params,
-          headers: test_api_headers
-      response.status.should == 200
-    end
-
-    specify 'Only Orders of this Account may be updated' do
-      new_account = create(:account)
-      new_order = create(:order, account: new_account)
-
-      put "/orders/#{new_order.id}.json",
-          params: @update_params,
-          headers: test_api_headers
-      response.body.should == {
-        error: I18n.t('errors.no_auth.resource', resource_type: 'Order')
-      }.to_json
-
-      response.status.should == 401
-    end
-  end # Update
+  # describe 'PUT /orders/:id' do
+  #   before do
+  #     @note = Faker::Lorem.paragraph
+  #     @update_params = {
+  #       order: {
+  #         note: @note
+  #       }
+  #     }
+  #   end
+  #
+  #   it 'should update @order' do
+  #     expect{
+  #       put "/orders/#{@order.id}.json",
+  #           params: @update_params,
+  #           headers: test_api_headers
+  #      }.to change{ @order.reload.note }
+  #       .to(@update_params[:order][:note])
+  #   end
+  #
+  #   it  'should return Order data' do
+  #     put "/orders/#{@order.id}.json",
+  #         params: @update_params,
+  #         headers: test_api_headers
+  #
+  #     response.body.should == order_response(@order.reload).to_json
+  #   end
+  #
+  #   it 'should return code ' do
+  #     put "/orders/#{@order.id}.json",
+  #         params: @update_params,
+  #         headers: test_api_headers
+  #     response.status.should == 200
+  #   end
+  #
+  #   specify 'Only Orders of this Account may be updated' do
+  #     new_account = create(:account)
+  #     new_order = create(:order, account: new_account)
+  #
+  #     put "/orders/#{new_order.id}.json",
+  #         params: @update_params,
+  #         headers: test_api_headers
+  #     response.body.should == {
+  #       error: I18n.t('errors.no_auth.resource', resource_type: 'Order')
+  #     }.to_json
+  #
+  #     response.status.should == 401
+  #   end
+  # end # Update
 
   describe 'DELETE /orders/:id' do
     it 'should destroy a Order' do
@@ -322,6 +433,7 @@ describe 'Order Requests', type: :request, api: true do
             .to change{ Order.count }.by(-1)
       Order.find_by(id: @order.id).should == nil
     end
+
 
     it 'should return a code' do
       delete "/orders/#{@order.id}.json", headers: test_api_headers

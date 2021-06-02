@@ -8,6 +8,14 @@ json.order_items do
   )
 end
 
+json.transactions do
+  json.array!(
+    order.transactions,
+    partial: "transactions/transaction",
+    as: :transaction
+  )
+end
+
 json.extract!(
   order,
   :total,
@@ -20,8 +28,7 @@ json.extract!(
   :menu_name,
   :note,
   :seen_at,
-  :funded_at,
   :delivered_at,
   :created_at,
-  :updated_at,
+  :updated_at
 )

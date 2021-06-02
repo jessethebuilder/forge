@@ -3,12 +3,11 @@ class CreateOrders < ActiveRecord::Migration[6.0]
     create_table :orders do |t|
       t.jsonb :data, default: {}
       t.string :note
-      t.float :tip, default: 0.0
-      t.float :tax, default: 0.0
+      t.integer :tip, default: 0.0
+      t.integer :tax, default: 0.0
       t.datetime :seen_at
       t.datetime :delivered_at
-      t.datetime :funded_at
-
+      
       t.timestamps
     end
 

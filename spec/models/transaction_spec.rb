@@ -30,7 +30,7 @@ describe Transaction, type: :model do
       it 'Must NOT be the first Transaction on Order' do
         @charge.amount = -(@order.total - 1)
         @charge.valid?.should == false
-        @charge.errors[:refund].should == ['cannot be the first Transaction on an Order']
+        @charge.errors[:amount].should == ['a refund cannot be the first Transaction on an Order']
       end
 
       context 'After a Refund' do
@@ -54,6 +54,17 @@ describe Transaction, type: :model do
           second_refund.errors[:amount].should == ['cannot be less than Order total']
         end
       end
+    end # Refund
+
+    describe 'Orders w/ 0 :amount' do
+      before do
+        @charge.amount = 0
+      end
+
+      it 'should not be valid' do
+        @charge.valid?.should == false
+        @charge.errors[:amount].should == ['cannot be zero']
+      end
     end
   end # Validations
 
@@ -65,22 +76,59 @@ describe Transaction, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
-    describe ' Updating the Order' do
-      describe ':funded_at' do
-        specify 'creating a charge transaction should updated funded_at' do
-          time = Time.now
-          allow(Time).to receive(:now).and_return(time)
-
-          charge = build(:charge, order: @order)
-
-          expect{ charge.save! }.to change{ @order.funded_at }
-                .from(nil).to(time)
-        end
+    describe 'Executing' do
+      before do
+        allow(@charge).to receive(:charge!)
       end
-    end # Updating the Order
+
+      it 'should execute #charge! if Transaction is positive' do
+        expect(@charge).to receive(:charge!)
+        @charge.save!
+      end
+
+      it 'should execute #refund! if Transaction is negative' do
+        @charge.save
+        refund = build(:refund, order: @order)
+        expect(refund).to receive(:refund!)
+        refund.save!
+      end
+    end
+
+    describe 'First Transaction' do
+      specify 'If this is the First Transaction for Order, set amount to @order.total' do
+        @charge.amount = nil
+        expect{ @charge.save! }.to change{ @charge.amount }.from(nil).to(@order.total)
+      end
+
+      it 'should not set amount if amount is 0' do
+        @charge.amount = 0
+        expect{ @charge.save }.not_to change{ @charge.amount }
+      end
+
+      it 'should not set amount if this is not the first transaction' do
+        @charge.save!
+        new_charge = build(:charge, order: @order)
+        expect{ new_charge.save }.not_to change{ new_charge.amount }
+      end
+
+      it 'should not set amount if this is not the first transaction' do
+        @order.destroy
+        expect{ @charge.save }.not_to change{ @charge.amount }
+      end
+    end
   end # Behaviors
 
   describe 'Methods' do
+    describe '#transaction_type' do
+      it 'should return "charge" if the Transaction is positive' do
+        @charge.transaction_type.should == 'charge'
+      end
+
+      it 'should return "refund" if Transaction is negative' do
+        refund = build(:refund)
+        refund.transaction_type.should == 'refund'
+      end
+    end # transaction_type
   end # Methods
 
   describe 'Class Methods' do

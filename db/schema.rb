@@ -39,6 +39,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "email"
     t.string "phone"
     t.jsonb "data", default: {}
+    t.string "stripe_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -89,12 +90,10 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   create_table "orders", force: :cascade do |t|
     t.jsonb "data", default: {}
     t.string "note"
-    t.float "tip", default: 0.0
-    t.float "tax", default: 0.0
+    t.integer "tip", default: 0
+    t.integer "tax", default: 0
     t.datetime "seen_at"
     t.datetime "delivered_at"
-    t.datetime "funded_at"
-    t.datetime "refunded_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -125,6 +124,7 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
 
   create_table "transactions", force: :cascade do |t|
     t.integer "amount"
+    t.string "stripe_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "order_id"

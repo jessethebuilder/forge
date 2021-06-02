@@ -5,6 +5,7 @@ class CreateCustomers < ActiveRecord::Migration[6.0]
       t.string :email
       t.string :phone
       t.jsonb :data, default: {}
+      t.string :stripe_id
 
       t.timestamps
     end

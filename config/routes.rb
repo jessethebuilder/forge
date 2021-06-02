@@ -1,20 +1,11 @@
 Rails.application.routes.draw do
-  resources :products, except: [:new, :edit] do
-    collection do
-      get :all_inactive
-    end
-  end
+  resources :orders, except: [:new, :edit, :update]
 
-  resources :groups, except: [:new, :edit]
   resources :menus, except: [:new, :edit]
+  resources :products, except: [:new, :edit]
+  resources :groups, except: [:new, :edit]
   resources :customers, except: [:new, :edit]
-  resources :orders, except: [:new, :edit]
-
-  resources :order_items, only: [] do
-    member do
-      # Future home of a refund endopoint
-    end
-  end
+  resources :transactions, except: [:new, :edit, :update, :destroy, :index]
 
   resource :account
 

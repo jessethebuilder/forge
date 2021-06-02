@@ -52,14 +52,14 @@ FactoryBot.define do
 
   factory :transaction do
     order
-    amount{ Random.rand(0.01..1000) }
+    amount{ Random.rand(1..100000) }
 
     factory :charge do
       amount { order.total }
     end
 
     factory :refund do
-      amount { (Random.rand(0.01..order.total) - order.total).round(2) }
+      amount { (Random.rand(0..order.total) - order.total) }
     end
   end
 end
