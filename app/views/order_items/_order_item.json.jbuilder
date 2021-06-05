@@ -9,6 +9,8 @@ json.extract!(
   :product_name,
   :group_id,
   :group_name,
+  :menu_id,
+  :menu_name,
   :created_at,
   :updated_at
 )

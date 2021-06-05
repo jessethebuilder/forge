@@ -5,6 +5,7 @@ json.extract!(
   :description,
   :data,
   :active,
+  :archived,
   :created_at,
   :updated_at
 )

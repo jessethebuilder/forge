@@ -7,31 +7,6 @@ describe 'Order Requests', type: :request, api: true do
     @order = create(:order, account: @account, menu: @menu, customer: @customer)
   end
 
-  def order_response(order, updates = {})
-    base = {
-      id: order.id,
-      order_items: order.order_items,
-      transactions: order.transactions,
-      total: order.total,
-      subtotal: order.subtotal,
-      tax: order.tax,
-      tip: order.tip,
-      data: order.data,
-      customer_id: order.customer&.id,
-      menu_id: order.menu&.id,
-      menu_name: order.menu_name,
-      note: order.note,
-      seen_at: order.seen_at,
-      delivered_at: order.delivered_at,
-      created_at: order.created_at,
-      updated_at: order.updated_at
-    }
-
-    updates.each{ |k, v| base[k] = v }
-
-    return base
-  end
-
   describe 'GET /orders' do
     it 'should return an array of Orders' do
       get '/orders.json', headers: test_api_headers
@@ -109,13 +84,14 @@ describe 'Order Requests', type: :request, api: true do
 
   describe 'GET /orders/:id' do
     it 'should return Order data' do
-      @order.update(
-        data: {hello: 'world'}
-      )
+      @order.update(data: {hello: 'world'})
 
       get "/orders/#{@order.id}.json", headers: test_api_headers
 
-      response.body.should == order_response(@order, data: {hello: 'world'}).to_json
+      response.body.should == order_response(
+        @order,
+        updates: {data: {hello: 'world'}}
+      ).to_json
     end
 
     specify 'Only Orders of this Account may be fetched' do
@@ -272,21 +248,7 @@ describe 'Order Requests', type: :request, api: true do
 
         response.body.should == order_response(
           order,
-          order_items: [
-            {
-              id: order_item.id,
-              amount: order_item.amount,
-              note: nil,
-              data: {},
-              order_id: order.id,
-              product_id: @product.id,
-              product_name: @product.name,
-              group_id: nil,
-              group_name: nil,
-              created_at: order_item.created_at,
-              updated_at: order_item.updated_at
-            }
-          ]
+          updates: {order_items: [ order_item_response(order_item) ] }
         ).to_json
       end
 
@@ -347,32 +309,10 @@ describe 'Order Requests', type: :request, api: true do
 
         response.body.should == order_response(
           order,
-          order_items: [
-            {
-              id: order_item.id,
-              amount: order_item.amount,
-              note: nil,
-              data: {},
-              order_id: order.id,
-              product_id: @product.id,
-              product_name: @product.name,
-              group_id: nil,
-              group_name: nil,
-              created_at: order_item.created_at,
-              updated_at: order_item.updated_at
-            }
-          ],
-          transactions: [
-            {
-              id: transaction.id,
-              amount: transaction.amount,
-              transaction_type: 'charge',
-              order_id: order.id,
-              stripe_id: nil,
-              created_at: transaction.created_at,
-              updated_at: transaction.updated_at
-            }
-          ]
+          updates: {
+            order_items: [ order_item_response(order_item) ],
+            transactions: [ transaction_response(transaction) ]
+          }
         ).to_json
       end
     end # Transactions

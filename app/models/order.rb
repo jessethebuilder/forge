@@ -6,7 +6,7 @@ class Order < ApplicationRecord
   has_many :order_items, dependent: :destroy #spec
   accepts_nested_attributes_for :order_items
 
-  has_many :transactions
+  has_many :transactions, dependent: :destroy
   accepts_nested_attributes_for :transactions
 
   def total

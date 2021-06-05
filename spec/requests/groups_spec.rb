@@ -10,20 +10,7 @@ describe 'Group Requests', type: :request, api: true do
   describe 'GET /groups' do
     it 'should return an array of Groups' do
       get '/groups.json', headers: test_api_headers
-      response.body.should == [
-        {
-          id: @group.id,
-          name: @group_name,
-          description: nil,
-          order: nil,
-          data: {},
-          reference: nil,
-          active: true,
-          created_at: @group.created_at,
-          updated_at: @group.updated_at,
-          menu_id: @menu.id,
-        }
-      ].to_json
+      response.body.should == [ group_response(@group) ].to_json
     end
 
     it 'it SHOULD NOT return other accounts Groups' do
@@ -35,71 +22,53 @@ describe 'Group Requests', type: :request, api: true do
       response_data.first['id'].should == @group.id
     end
 
-    describe 'Depth' do
+    describe 'Scopes' do
       before do
-        @product1 = create(:product, group: @group, account: @account)
-        @product2 = create(:product, group: @group, account: @account)
+        @inactive_group = create(:group, :inactive, account: @account)
+        @archived_group = create(:group, :archived, account: @account)
       end
 
-      it 'should return Products belonging to Group' do
-        get "/groups.json",
-            params: {deep: true},
-            headers: test_api_headers
-
-        products_data = JSON.parse(response.body).first['products']
-        products_data.first['id'].should == @product1.id
-        products_data.last['id'].should == @product2.id
+      it 'should return only active products, by default' do
+        get '/groups.json', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @group.id
       end
 
-      describe 'With Inacive associated records' do
-        before do
-          @product1.update(active: false)
-        end
-
-        it 'should show only active records if scope is :active (default)' do
-          get "/groups.json",
-              params: {deep: true},
-              headers: test_api_headers
-          data = JSON.parse(response.body).first['products']
-          data.count.should == 1
-          data.first['id'].should == @product2.id
-        end
-
-        it 'should show only active records if scope is :all' do
-          get "/groups.json",
-              params: {deep: true, scope: :all},
-              headers: test_api_headers
-          data = JSON.parse(response.body).first['products']
-          data.count.should == 2
-        end
+      it 'should return only inactive products, if "inactive" is passed to :scope' do
+        get '/groups.json?scope=inactive', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @inactive_group.id
       end
-    end # Depth
+
+      it 'should return only archived products, if "archived" is passed to :scope' do
+        get '/groups.json?scope=archived', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @archived_group.id
+      end
+
+      it 'should return ALL Products, if "all" is passed to :scope' do
+        get '/groups.json?scope=all', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == @account.groups.count
+      end
+
+      it 'should return active Products, if an unrecognized scope is passed to :scope' do
+        get '/groups.json?scope=some_mess', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @group.id
+      end
+    end # Scopes
   end # Index
 
   describe 'GET /groups/:id' do
     it 'should return Group data' do
-      @group.update(
-        name: 'name',
-        description: 'description',
-        order: 15,
-        data: {hello: 'world'},
-        reference: 'reference'
-      )
-
       get "/groups/#{@group.id}.json", headers: test_api_headers
 
-      response.body.should == {
-        id: @group.id,
-        name: 'name',
-        description: 'description',
-        order: 15,
-        data: {hello: 'world'},
-        reference: 'reference',
-        active: true,
-        created_at: @group.created_at,
-        updated_at: @group.updated_at,
-        menu_id: @menu.id
-      }.to_json
+      response.body.should == group_response(@group, deep: true).to_json
     end
 
     specify 'Only Groups of this Account may be fetched' do
@@ -114,45 +83,43 @@ describe 'Group Requests', type: :request, api: true do
       response.status.should == 401
     end
 
-    describe 'Depth' do
+    describe 'Products' do
       before do
-        @product1 = create(:product, group: @group, account: @account)
-        @product2 = create(:product, group: @group, account: @account)
+        @product = create(:product, group: @group, account: @account)
+        @inactive_product = create(:product, :inactive, group: @group, account: @account)
+        @archived_product = create(:product, :archived, group: @group, account: @account)
       end
 
       it 'should return Products belonging to Group' do
-        get "/groups.json",
-            params: {deep: true},
-            headers: test_api_headers
+        get "/groups/#{@group.to_param}.json", headers: test_api_headers
 
-        products_data = JSON.parse(response.body).first['products']
-        products_data.first['id'].should == @product1.id
-        products_data.last['id'].should == @product2.id
+        response.body.should == group_response(
+          @group,
+          updates: {products: [ product_response(@product) ]}
+        ).to_json
       end
 
-      describe 'With Inacive associated records' do
-        before do
-          @product1.update(active: false)
-        end
-
-        it 'should show only active records if scope is :active (default)' do
-          get "/groups/#{@group.id}.json",
-              params: {deep: true},
-              headers: test_api_headers
-          data = JSON.parse(response.body)['products']
-          data.count.should == 1
-          data.first['id'].should == @product2.id
-        end
-
-        it 'should show only active records if scope is :all' do
-          get "/groups/#{@group.id}.json",
-              params: {deep: true, scope: :all},
-              headers: test_api_headers
-          data = JSON.parse(response.body)['products']
-          data.count.should == 2
-        end
+      it 'should show only inactive Products if scope is :inactive' do
+        get "/groups/#{@group.id}.json?scope=inactive", headers: test_api_headers
+        response.body.should == group_response(
+          @group,
+          updates: {products: [ product_response(@inactive_product) ]}
+        ).to_json
       end
-    end # Depth
+
+      it 'should show only archived Products if scope is :archived' do
+        get "/groups/#{@group.id}.json?scope=archived", headers: test_api_headers
+        response.body.should == group_response(
+          @group,
+          updates: {products: [ product_response(@archived_product) ]}
+        ).to_json
+      end
+
+      it 'should show only active records if scope is :all' do
+        get "/groups/#{@group.id}.json?scope=all", headers: test_api_headers
+        JSON.parse(response.body)['products'].count.should == 3
+      end
+    end # Products
   end # Show
 
   describe 'POST /groups' do
@@ -163,7 +130,6 @@ describe 'Group Requests', type: :request, api: true do
                                {name: 'name',
                                 description: 'description',
                                 order: 15,
-                                reference: 'reference',
                                 active: false})
       }
     end
@@ -177,18 +143,7 @@ describe 'Group Requests', type: :request, api: true do
       post '/groups.json', params: @create_params, headers: test_api_headers
       created_group = Group.order(created_at: :desc).first
 
-      response.body.should == {
-        id: created_group.id,
-        name: 'name',
-        description: 'description',
-        order: 15,
-        data: {},
-        reference: 'reference',
-        active: false,
-        created_at: created_group.created_at,
-        updated_at: created_group.updated_at,
-        menu_id: nil
-      }.to_json
+      response.body.should == group_response(created_group).to_json
     end
 
     it 'should accept menu_id as a param' do
@@ -253,18 +208,7 @@ describe 'Group Requests', type: :request, api: true do
           params: @update_params,
           headers: test_api_headers
 
-      response.body.should == {
-        id: @group.reload.id,
-        name: "#{@group_name} the Third!",
-        description: nil,
-        order: nil,
-        data: {},
-        reference: nil,
-        active: true,
-        created_at: @group.created_at,
-        updated_at: @group.updated_at,
-        menu_id: @menu.id
-      }.to_json
+      response.body.should == group_response(@group.reload).to_json
     end
 
     it 'should return code ' do

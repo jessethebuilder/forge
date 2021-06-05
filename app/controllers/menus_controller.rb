@@ -2,7 +2,6 @@ class MenusController < ApplicationController
   before_action :authenticate!
   before_action :set_menu, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy]
-  before_action :set_depth, only: [:index, :show]
   before_action :set_scope, only: [:index, :show]
 
   def index
@@ -10,6 +9,7 @@ class MenusController < ApplicationController
   end
 
   def show
+    @deep = true
   end
 
   def create

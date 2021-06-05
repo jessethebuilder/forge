@@ -24,6 +24,14 @@ describe Transaction, type: :model do
         @charge.valid?.should == false
         @charge.errors[:amount].should == ['must equal Order total']
       end
+
+      describe 'Payment Method' do
+        it 'should return an error if no token (or card info) is provided' do
+          @charge.stripe_token = nil
+          @charge.valid?.should == false
+          @charge.errors[:charge].should == ['requires a valid payment method']
+        end
+      end # Payment Method
     end # Positive Transactions
 
     describe 'Refund' do
@@ -33,22 +41,28 @@ describe Transaction, type: :model do
         @charge.errors[:amount].should == ['a refund cannot be the first Transaction on an Order']
       end
 
-      context 'After a Refund' do
+      context 'After a Charge' do
         before do
           @charge.save!
+          @refund = build(:refund, order: @order)
+        end
+
+        it 'must be less than -49' do
+          @refund.amount = -49
+          @refund.valid?.should == false
+          @refund.errors[:amount].should == ['refund must be 50 cents or more']
         end
 
         it 'must be less than :amount' do
-          refund = build(:refund, order: @order)
-          refund.amount = -(@order.total) -1
-          refund.valid?.should == false
-          refund.errors[:amount].should == ['cannot be less than Order total']
+          @refund.amount = -(@order.total) -1
+          @refund.valid?.should == false
+          @refund.errors[:amount].should == ['cannot be less than Order total']
         end
 
         it 'must be less than the amount of ALL negative Refunds' do
           first_refund = create(:refund, order: @order, amount: -@order.total)
 
-          second_refund = build(:refund, order: @order, amount: -1)
+          second_refund = build(:refund, order: @order, amount: -100)
 
           second_refund.valid?.should == false
           second_refund.errors[:amount].should == ['cannot be less than Order total']
@@ -56,14 +70,14 @@ describe Transaction, type: :model do
       end
     end # Refund
 
-    describe 'Orders w/ 0 :amount' do
+    describe 'Orders w/ :amount less than 50' do
       before do
-        @charge.amount = 0
+        @charge.amount = 49
       end
 
       it 'should not be valid' do
         @charge.valid?.should == false
-        @charge.errors[:amount].should == ['cannot be zero']
+        @charge.errors[:amount].include?('charge must be 50 cents or more').should == true
       end
     end
   end # Validations

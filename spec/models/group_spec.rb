@@ -1,6 +1,7 @@
 describe Group, type: :model do
   before do
     @group = build(:group)
+    @account = @group.account
   end
 
   describe 'Validations' do
@@ -41,7 +42,8 @@ describe Group, type: :model do
   describe 'Class Methods' do
     before do
       @group.save!
-      @inactive_group = create(:group, active: false, account: @group.account)
+      @inactive_group = create(:group, :inactive, account: @group.account)
+      @archived_group = create(:group, :archived, account: @group.account)
     end
 
     describe 'Scopes' do
@@ -52,8 +54,14 @@ describe Group, type: :model do
       end
 
       describe '#inactive' do
-        it 'should return any product that is not active' do
+        it 'should return any product that is not active or archived' do
           Group.inactive.should == [@inactive_group]
+        end
+      end
+
+      describe '#archived' do
+        it 'should return any product that is archived' do
+          Group.archived.should == [@archived_group]
         end
       end
     end

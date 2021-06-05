@@ -5,10 +5,12 @@ json.extract!(
   :description,
   :order,
   :price,
+  :group_id,
+  :group_name,
+  :menu_id,
+  :menu_name,
   :data,
   :active,
   :created_at,
-  :updated_at,
-  :menu_id,
-  :group_id
+  :updated_at
 )

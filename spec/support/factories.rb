@@ -1,4 +1,16 @@
 FactoryBot.define do
+  trait :active do
+    active { true }
+  end
+
+  trait :archived do
+    archived { true }
+  end
+
+  trait :inactive do
+    active { false }
+  end
+
   factory :account do
     sequence(:email){ |n| "test_#{n}@test.com" }
   end
@@ -24,7 +36,7 @@ FactoryBot.define do
 
   factory :product do
     name { Faker::Lorem.word }
-    price { Random.rand(0.01..1000.0).round(2) }
+    price { Random.rand(50..100000) }
     account
   end
 
@@ -51,15 +63,16 @@ FactoryBot.define do
   end
 
   factory :transaction do
-    order
-    amount{ Random.rand(1..100000) }
+    order { build(:order, :with_items) }
+    amount{ Random.rand(50..100000) }
+    stripe_token { 'some_token' }
 
     factory :charge do
       amount { order.total }
     end
 
     factory :refund do
-      amount { (Random.rand(0..order.total) - order.total) }
+      amount { (Random.rand(50..order.total) - order.total) }
     end
   end
 end

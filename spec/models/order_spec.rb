@@ -21,7 +21,7 @@ describe Order, type: :model do
   describe 'Methods' do
     describe 'Money Methods' do
       before do
-        @product = create(:product, price: 15.0)
+        @product = create(:product, price: 1500)
         @order.order_items << [
           build(:order_item, product: @product),
           build(:order_item, product: @product)
@@ -30,24 +30,24 @@ describe Order, type: :model do
 
       describe '#subtotal' do
         it 'should return the total of all order_items' do
-          @order.subtotal.should == 30
+          @order.subtotal.should == 3000
         end
       end
 
       describe '#total' do
         it 'should return sub_total + tax + tip' do
-          @order.tax = 10
-          @order.tip = 10
-          @order.total.should == 50
+          @order.tax = 100
+          @order.tip = 100
+          @order.total.should == 3200
         end
       end
 
       describe '#refund_total' do
         it 'should return the total of all refunds' do
           create(:charge, order: @order) # The first Transaction, must be a Charge!
-          create(:refund, order: @order, amount: -10)
-          create(:refund, order: @order, amount: -10)
-          @order.refund_total.should == -20
+          create(:refund, order: @order, amount: -50)
+          create(:refund, order: @order, amount: -50)
+          @order.refund_total.should == -100
         end
       end
     end # Money Methods

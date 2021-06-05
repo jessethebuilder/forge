@@ -2,7 +2,6 @@ class GroupsController < ApplicationController
   before_action :authenticate!
   before_action :set_group, only: [:show, :update, :destroy]
   before_action :authenticate_account_can_access_resource!, only: [:show, :update, :destroy, :edit]
-  before_action :set_depth, only: [:index, :show]
   before_action :set_scope, only: [:index, :show]
 
   def index
@@ -12,6 +11,7 @@ class GroupsController < ApplicationController
   end
 
   def show
+    @deep = true
   end
 
   def create
@@ -55,6 +55,7 @@ class GroupsController < ApplicationController
 
   def group_params
     params.require(:group).permit(
-      :name, :description, :order, :data, :reference, :active, :menu_id)
+      :name, :description, :order, :data, :active, :archived, :menu_id
+    )
   end
 end

@@ -1,4 +1,6 @@
 class Group < ApplicationRecord
+  include StatusScoped
+
   belongs_to :account
   belongs_to :menu, optional: true
 
@@ -8,10 +10,11 @@ class Group < ApplicationRecord
 
   default_scope -> { order(:order) }
 
-  scope :active, -> { where(active: true) }
-  scope :inactive, -> { where(active: false) }
-
   validate :product_belongs_to_menu
+
+  def menu_name
+    menu&.name
+  end
 
   private
 

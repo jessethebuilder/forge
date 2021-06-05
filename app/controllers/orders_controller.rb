@@ -65,9 +65,20 @@ class OrdersController < ApplicationController
       :seen_at,
       :delivered_at,
       :see,
-      order_items: [:product_id, :note, :amount],
-      transactions: [:card_number, :card_expiration, :card_ccv, :amount]
+      order_items: [
+        :product_id,
+        :note,
+        :amount
+      ],
+      transactions: [
+        :amount,
+        :card_number,
+        :card_expiration,
+        :card_ccv,
+        :stripe_token
+      ]
     )
+
     # Move :items to :order_items_attributes to make the API cleaner, but still
     # conforms to the Rails conventions.
     p[:order_items_attributes] = p[:order_items] if p[:order_items]

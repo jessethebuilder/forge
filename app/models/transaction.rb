@@ -1,5 +1,5 @@
 class Transaction < ApplicationRecord
-  attr_writer :card_number, :card_expiration, :card_ccv
+  attr_accessor :card_number, :card_expiration, :card_ccv, :stripe_token
 
   belongs_to :order
 
@@ -9,7 +9,6 @@ class Transaction < ApplicationRecord
   scope :charges, -> { where('amount > 0') }
 
   def charge!
-
   end
 
   def refund!
@@ -31,6 +30,7 @@ class Transaction < ApplicationRecord
   validate :validate_transaction
 
   before_validation :set_full_amount_if_first_transaction
+  # _validation :execute_transaction
   before_create :execute_transaction
 
   private
@@ -52,9 +52,15 @@ class Transaction < ApplicationRecord
     #   than the total all all other negative transactions.
     return unless order && self.new_record?
 
-    errors.add(:amount, 'cannot be zero') && return if amount == 0
+    validate_amount
 
     charge? ? validate_charge : validate_refund
+  end
+
+  def validate_amount
+    if amount.to_i.abs < 50
+      errors.add(:amount, "#{self.transaction_type} must be 50 cents or more")
+    end
   end
 
   def validate_refund
@@ -77,8 +83,17 @@ class Transaction < ApplicationRecord
   end
 
   def validate_charge
+    validate_payment_method
     validate_charge_is_first
     validate_amount_matches_order_total
+  end
+
+  def validate_payment_method
+    return unless self.new_record?
+
+    if (card_number.nil? && card_expiration.nil? && card_ccv.nil?) && stripe_token.nil?  
+      errors.add(:charge, 'requires a valid payment method')
+    end
   end
 
   def validate_charge_is_first

@@ -2,7 +2,7 @@ class ApplicationController < ActionController::Base
   skip_before_action :verify_authenticity_token
   # , if: :json_request?
 
-  RECORD_SCOPES = %w|all active inactive|
+  RECORD_SCOPES = %w|all active inactive archived|
 
   protected
 
@@ -23,11 +23,6 @@ class ApplicationController < ActionController::Base
 
   def current_account
     @current_account
-  end
-
-  def set_depth
-    # Refers to whether the data returned include associated record data.
-    @deep = params[:deep] ? true : false
   end
 
   def set_scope

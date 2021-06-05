@@ -15,12 +15,24 @@ class OrderItem < ApplicationRecord
     product&.group
   end
 
+  def group_id
+    group&.id
+  end
+
   def group_name
     group&.name
   end
 
-  def group_id
-    group&.id
+  def menu
+    product&.menu
+  end
+
+  def menu_id
+    menu&.id
+  end
+
+  def menu_name
+    menu&.name
   end
 
   private

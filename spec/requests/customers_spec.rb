@@ -9,18 +9,7 @@ describe 'Customer Requests', type: :request, api: true do
   describe 'GET /customers' do
     it 'should return an array of Customers' do
       get '/customers.json', headers: test_api_headers
-      response.body.should == [
-        {
-          id: @customer.id,
-          email: nil,
-          name: @customer_name,
-          phone: nil,
-          data: {},
-          reference: nil,
-          created_at: @customer.created_at,
-          updated_at: @customer.updated_at,
-        }
-      ].to_json
+      response.body.should == [ customer_response(@customer) ].to_json
     end
 
     it 'it SHOULD NOT return other accounts Customers' do
@@ -35,26 +24,14 @@ describe 'Customer Requests', type: :request, api: true do
 
   describe 'GET /customers/:id' do
     it 'should return Customer data' do
-      @customer.update(
-        name: 'name',
-        email: 'email',
-        phone: '123-456-7890',
-        data: {hello: 'world'},
-        reference: 'reference'
-      )
+      @customer.update(name: 'Jeff McTesterson')
 
       get "/customers/#{@customer.id}.json", headers: test_api_headers
 
-      response.body.should == {
-        id: @customer.id,
-        email: 'email',
-        name: 'name',
-        phone: '123-456-7890',
-        data: {hello: 'world'},
-        reference: 'reference',
-        created_at: @customer.created_at,
-        updated_at: @customer.updated_at,
-      }.to_json
+      response.body.should == customer_response(
+        @customer.reload,
+        updates: {name: 'Jeff McTesterson'}
+      ).to_json
     end
 
     specify 'Only Customers of this Account may be fetched' do
@@ -74,11 +51,7 @@ describe 'Customer Requests', type: :request, api: true do
     before do
       @create_params = {
         customer: attributes_for(:customer, name: Faker::Lorem.word)
-                             .merge(
-                               {name: 'name',
-                                email: 'email',
-                                phone: '123-456-7890',
-                                reference: 'reference'})
+                             .merge({name: 'Big Jeff'})
       }
     end
 
@@ -91,16 +64,10 @@ describe 'Customer Requests', type: :request, api: true do
       post '/customers.json', params: @create_params, headers: test_api_headers
       created_customer = Customer.last
 
-      response.body.should == {
-        id: created_customer.id,
-        email: 'email',
-        name: 'name',
-        phone: '123-456-7890',
-        data: {},
-        reference: 'reference',
-        created_at: created_customer.created_at,
-        updated_at: created_customer.updated_at,
-      }.to_json
+      response.body.should == customer_response(
+        created_customer,
+        updates: {name: 'Big Jeff'}
+      ).to_json
     end
 
     it 'should save :data' do
@@ -119,7 +86,7 @@ describe 'Customer Requests', type: :request, api: true do
     before do
       @update_params = {
         customer: {
-          name: @customer.name.to_s + " the Third!"
+          name: "Super Jeff"
         }
       }
     end
@@ -137,17 +104,10 @@ describe 'Customer Requests', type: :request, api: true do
       put "/customers/#{@customer.id}.json",
           params: @update_params,
           headers: test_api_headers
-
-      response.body.should == {
-        id: @customer.reload.id,
-        email: nil,
-        name: "#{@customer_name} the Third!",
-        phone: nil,
-        data: {},
-        reference: nil,
-        created_at: @customer.created_at,
-        updated_at: @customer.updated_at,
-      }.to_json
+      response.body.should == customer_response(
+        @customer.reload,
+        updates: {name: 'Super Jeff'}
+      ).to_json
     end
 
     it 'should return code ' do

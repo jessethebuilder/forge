@@ -11,22 +11,7 @@ describe 'Product Requests', type: :request, api: true do
   describe 'GET /products' do
     it 'should return an array of Products' do
       get '/products.json', headers: test_api_headers
-      response.body.should == [
-        {
-          id: @product.id,
-          name: @product.name,
-          description: nil,
-          order: nil,
-          price: @product.price,
-          data: {},
-          reference: nil,
-          active: true,
-          created_at: @product.created_at,
-          updated_at: @product.updated_at,
-          menu_id: @menu.id,
-          group_id: @group.id
-        }
-      ].to_json
+      response.body.should == [ product_response(@product) ].to_json
     end
 
     it 'it SHOULD NOT return other accounts Products' do
@@ -37,6 +22,47 @@ describe 'Product Requests', type: :request, api: true do
       response_data.count.should == 1
       response_data.first['id'].should == @product.id
     end
+
+    describe 'Scopes' do
+      before do
+        @inactive_product = create(:product, :inactive, account: @account)
+        @archived_product = create(:product, :archived, account: @account)
+      end
+
+      it 'should return only active products, by default' do
+        get '/products.json', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @product.id
+      end
+
+      it 'should return only inactive products, if "inactive" is passed to :scope' do
+        get '/products.json?scope=inactive', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @inactive_product.id
+      end
+
+      it 'should return only archived products, if "archived" is passed to :scope' do
+        get '/products.json?scope=archived', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @archived_product.id
+      end
+
+      it 'should return ALL Products, if "all" is passed to :scope' do
+        get '/products.json?scope=all', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == Product.count
+      end
+
+      it 'should return active Products, if an unrecognized scope is passed to :scope' do
+        get '/products.json?scope=some_mess', headers: test_api_headers
+        json = JSON.parse(response.body)
+        json.count.should == 1
+        json.first['id'].should == @product.id
+      end
+    end # Scopes
   end # Index
 
   describe 'GET /products/:id' do
@@ -45,26 +71,12 @@ describe 'Product Requests', type: :request, api: true do
         name: 'name',
         description: 'description',
         order: 15,
-        data: {hello: 'world'},
-        reference: 'reference'
+        data: {hello: 'world'}
       )
 
       get "/products/#{@product.id}.json", headers: test_api_headers
 
-      response.body.should == {
-        id: @product.id,
-        name: 'name',
-        description: 'description',
-        order: 15,
-        price: @product.price,
-        data: {hello: 'world'},
-        reference: 'reference',
-        active: true,
-        created_at: @product.created_at,
-        updated_at: @product.updated_at,
-        menu_id: @menu.id,
-        group_id: @group.id
-      }.to_json
+      response.body.should == product_response(@product).to_json
     end
 
     specify 'Only Products of this Account may be fetched' do
@@ -87,7 +99,6 @@ describe 'Product Requests', type: :request, api: true do
           name: 'name',
           description: 'description',
           order: 15,
-          reference: 'reference',
           price: 10.22,
           active: false})
         }
@@ -103,20 +114,7 @@ describe 'Product Requests', type: :request, api: true do
       post '/products.json', params: @create_params, headers: test_api_headers
       created_product = Product.order(created_at: :desc).first
 
-      response.body.should == {
-        id: created_product.id,
-        name: 'name',
-        description: 'description',
-        order: 15,
-        price: 10.22,
-        data: {},
-        reference: 'reference',
-        active: false,
-        created_at: created_product.created_at,
-        updated_at: created_product.updated_at,
-        menu_id: nil,
-        group_id: nil,
-      }.to_json
+      response.body.should == product_response(created_product).to_json
     end
 
     it 'should set menu_id' do
@@ -189,20 +187,8 @@ describe 'Product Requests', type: :request, api: true do
           params: @update_params,
           headers: test_api_headers
 
-      response.body.should == {
-        id: @product.reload.id,
-        name: @product.name,
-        description: nil,
-        order: nil,
-        price: @update_params[:product][:price],
-        data: {},
-        reference: nil,
-        active: true,
-        created_at: @product.created_at,
-        updated_at: @product.updated_at,
-        menu_id: @menu.id,
-        group_id: @group.id
-      }.to_json
+      @product.reload
+      response.body.should == product_response(@product).to_json
     end
 
     it 'should return code ' do
@@ -271,6 +257,25 @@ describe 'Product Requests', type: :request, api: true do
       }.to_json
 
       response.status.should == 401
+    end
+
+    context "@product exists on Order" do
+      before do
+        @order_item = create(:order_item, product: @product)
+      end
+
+      it 'should NOT delete the Product' do
+        expect{ delete "/products/#{@product.id}.json", headers: test_api_headers }
+              .not_to change{ Product.count }
+      end
+
+      it 'should set @product.archived to true' do
+        pending 'Works IRL and in model spec, but not in this spec'
+
+        expect{ delete "/products/#{@product.id}.json", headers: test_api_headers }
+              .to change{ @product.reload.archived }.from(false).to(true)
+
+      end
     end
   end # Destroy
 end

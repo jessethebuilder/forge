@@ -1,4 +1,6 @@
 class Product < ApplicationRecord
+  include StatusScoped
+
   belongs_to :account
   belongs_to :menu, optional: true
   belongs_to :group, optional: true
@@ -11,10 +13,30 @@ class Product < ApplicationRecord
   validate :product_belongs_to_group
   validate :product_belongs_to_menu
 
-  scope :active, -> { where(active: true) }
-  scope :inactive, -> { where(active: false) }
+  def group_name
+    group&.name
+  end
+
+  def menu_name
+    menu&.name
+  end
+
+  def exists_on_order?
+    self.order_items.first ? true : false
+  end
 
   default_scope -> { order(:order) }
+
+  before_destroy :archive_if_exists_on_order
+
+  private
+
+  def archive_if_exists_on_order
+    if exists_on_order?
+      self.update(archived: true)
+      throw :abort
+    end
+  end
 
   def product_belongs_to_group
     return unless group
