@@ -32,35 +32,9 @@ describe Transaction, type: :model do
         it 'should return an error if no token (or card info) is provided' do
           @charge.stripe_token = nil
           @charge.valid?.should == false
-          @charge.errors[:charge].should == ['requires a valid payment method']
+          @charge.errors[:stripe_token].should == ['cannot be blank']
         end
       end # Payment Method
-
-      context 'With a Customer on the Order' do
-        before do
-          @customer = create(:customer, account: @account, orders: [@order])
-        end
-
-        it 'should call StripeClient to create a Customer' do
-          expect_any_instance_of(StripeClient).to receive(:create_customer)
-          @charge.save!
-        end
-
-        it 'should update Customer with stripe_id' do
-          customer_id = Faker::Lorem.word
-          allow_any_instance_of(StripeClient)
-              .to receive(:create_customer)
-              .and_return(double(id: customer_id))
-          expect{ @charge.save! }.to change{ @customer.reload.stripe_id }
-              .from(nil).to(customer_id)
-        end
-
-        it 'should NOT create a Stripe Customer if Custmer has a Stripe ID' do
-          @customer.update(stripe_id: 'sample_stripe_id')
-          expect_any_instance_of(StripeClient).not_to receive(:create_customer)
-          @charge.save!
-        end
-      end
     end # Charge
 
     describe 'Refund' do
@@ -137,7 +111,40 @@ describe Transaction, type: :model do
       end
     end
 
-    describe 'First Transaction' do
+    describe 'StripeClient' do
+      it 'should call StripeClient to create a Charge' do
+        expect_any_instance_of(StripeClient).to receive(:create_charge)
+        @charge.save!
+      end
+
+      context 'With a Customer on the Order' do
+        before do
+          @customer = create(:customer, account: @account, orders: [@order])
+        end
+
+        it 'should call StripeClient to create a Customer' do
+          expect_any_instance_of(StripeClient).to receive(:create_customer)
+          @charge.save!
+        end
+
+        it 'should update Customer with stripe_id' do
+          customer_id = Faker::Lorem.word
+          allow_any_instance_of(StripeClient)
+              .to receive(:create_customer)
+              .and_return(double(id: customer_id))
+          expect{ @charge.save! }.to change{ @customer.reload.stripe_id }
+              .from(nil).to(customer_id)
+        end
+
+        it 'should NOT create a Stripe Customer if Custmer has a Stripe ID' do
+          @customer.update(stripe_id: 'sample_stripe_id')
+          expect_any_instance_of(StripeClient).not_to receive(:create_customer)
+          @charge.save!
+        end
+      end
+    end # StripeClient
+
+    describe 'Charge' do
       specify 'If this is the First Transaction for Order, set amount to @order.total' do
         @charge.amount = nil
         expect{ @charge.save! }.to change{ @charge.amount }.from(nil).to(@order.total)
@@ -158,7 +165,23 @@ describe Transaction, type: :model do
         @order.destroy
         expect{ @charge.save }.not_to change{ @charge.amount }
       end
-    end
+    end # Charge
+
+    describe 'Refund' do
+      before do
+        @charge.save
+        @refund = build(:refund, order: @order)
+      end
+
+      describe 'StripeClient' do
+        it 'should call StripeClient to create a Refund' do
+          expect_any_instance_of(StripeClient).to receive(:create_refund).with(
+            @refund.amount, @charge.stripe_id
+          )
+          @refund.save!
+        end
+      end # StripeClient
+    end # Refund
   end # Behaviors
 
   describe 'Methods' do

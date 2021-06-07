@@ -1,6 +1,5 @@
 class Transaction < ApplicationRecord # Transaction should be an interface, with inheritors like StripeTransaction
-  attr_accessor :card_number, :card_expiration, :card_ccv, # TODO pull this line
-                :stripe_token
+  attr_accessor :stripe_token
 
   belongs_to :order
 
@@ -11,7 +10,7 @@ class Transaction < ApplicationRecord # Transaction should be an interface, with
   delegate :account, to: :order
   delegate :customer, to: :order
 
-  def charge! # TODO spec
+  def charge!
     charge_stripe!
   end
 
@@ -98,10 +97,7 @@ class Transaction < ApplicationRecord # Transaction should be an interface, with
 
   def validate_payment_method
     return unless self.new_record?
-
-    if (card_number.nil? && card_expiration.nil? && card_ccv.nil?) && stripe_token.nil?
-      errors.add(:charge, 'requires a valid payment method')
-    end
+    errors.add(:stripe_token, 'cannot be blank') if stripe_token.nil?
   end
 
   def validate_charge_is_first
@@ -140,7 +136,7 @@ class Transaction < ApplicationRecord # Transaction should be an interface, with
   end
 
   def refund_stripe! # spec
-    stripe_client.create_refund(amount, order.charge)
+    stripe_client.create_refund(amount, order.charge.stripe_id)
   end
 
   def stripe_client

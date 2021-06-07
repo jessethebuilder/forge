@@ -89,7 +89,7 @@ ActiveRecord::Schema.define(version: 2021_06_06_112617) do
 
   create_table "order_notifications", force: :cascade do |t|
     t.text "message"
-    t.string "message_type"
+    t.string "notification_type"
     t.bigint "order_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false

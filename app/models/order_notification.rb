@@ -1,4 +1,4 @@
-class OrderNotification < ApplicationRecord #TODO spec!!
+class OrderNotification < ApplicationRecord
   ORDER_NOTIFICATION_TYPES = %w|new_order notify_customer notify_account notify_menu|
 
   belongs_to :order, required: true

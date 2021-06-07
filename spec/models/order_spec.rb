@@ -17,7 +17,19 @@ describe Order, type: :model do
 
     it{ should have_many :order_items }
 
+    it 'should destroy OrderItems on destroy' do
+      @order.save
+      @order_item = create(:order_item, order: @order)
+      expect{ @order.destroy }.to change{ OrderItem.exists?(@order_item.id) }.to(false)
+    end
+
     it{ should have_many :transactions }
+
+    it 'should destroy OrderItems on destroy' do
+      @transaction = create(:charge)
+      order = @transaction.order
+      expect{ order.destroy }.to change{ Transaction.exists?(@transaction.id) }.to(false)
+    end
   end # Associations
 
   describe 'Methods' do

@@ -7,6 +7,16 @@ describe 'Transaction Requests', type: :request, api: true do
     @order = create(:order, :with_items, account: @account)
   end
 
+  def create_transaction!
+    post(
+      "/orders/#{@order.to_param}/transactions.json",
+      params: @transaction_params,
+      headers: test_api_headers
+    )
+
+    return Transaction.last
+  end
+
   describe 'Creating a Transaction' do
     before do
       @transaction_params = {transaction: {}}
@@ -20,33 +30,23 @@ describe 'Transaction Requests', type: :request, api: true do
         }
       end
 
-      def create_charge
-        post(
-          "/orders/#{@order.to_param}/transactions.json",
-          params: @transaction_params,
-          headers: test_api_headers
-        )
-
-        return Transaction.last
-      end
-
       it 'should create a Transaction' do
-        expect{ create_charge }.to change{ Transaction.count }.by(1)
+        expect{ create_transaction! }.to change{ Transaction.count }.by(1)
       end
 
       it 'should return a Transaction Object' do
-        created_transaction = create_charge
+        created_transaction = create_transaction!
         response.body.should == transaction_response(created_transaction).to_json
       end
 
       it 'should call StripeClient to create a Charge' do
         expect_any_instance_of(StripeClient).to receive(:create_charge)
-        create_charge
+        create_transaction!
       end
 
       it 'should NOT call StripeClient to create a Customer' do
         expect_any_instance_of(StripeClient).not_to receive(:create_customer)
-        create_charge
+        create_transaction!
       end
 
       describe 'With a Customer' do
@@ -60,7 +60,7 @@ describe 'Transaction Requests', type: :request, api: true do
             name: @name, email: nil, phone: nil, source: 'sample_token'
           )
 
-          create_charge
+          create_transaction!
         end
 
         it 'should update Customer with stripe_id' do
@@ -68,21 +68,21 @@ describe 'Transaction Requests', type: :request, api: true do
           allow_any_instance_of(StripeClient)
               .to receive(:create_customer)
               .and_return(double(id: customer_id))
-          expect{ create_charge }.to change{ @customer.reload.stripe_id }
+          expect{ create_transaction! }.to change{ @customer.reload.stripe_id }
               .from(nil).to(customer_id)
         end
 
         it 'should NOT create a Stripe Customer if Custmer has a Stripe ID' do
           @customer.update(stripe_id: 'sample_stripe_id')
           expect_any_instance_of(StripeClient).not_to receive(:create_customer)
-          create_charge
+          create_transaction!
         end
       end
     end # Creating a Charge
 
     describe 'Creating a Refund' do
       before do
-        create(:charge, order: @order)
+        @charge = create(:charge, order: @order)
 
         @transaction_params[:transaction] = {
           amount: -@order.total
@@ -109,6 +109,13 @@ describe 'Transaction Requests', type: :request, api: true do
         created_transaction = Transaction.last
 
         response.body.should == transaction_response(created_transaction).to_json
+      end
+
+      it 'should call StripeClient to create a Charge' do
+        expect_any_instance_of(StripeClient).to receive(:create_refund).with(
+          -@order.total, @charge.stripe_id
+        )
+        create_transaction!
       end
     end # Creating a Refund
   end # Creating a Transaction

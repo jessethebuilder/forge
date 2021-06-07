@@ -49,7 +49,7 @@ class StripeClient
     call_api do
       Stripe::Refund.create(
         {
-          amount: amount,
+          amount: amount.abs,
           charge: charge
         },
         credentials
