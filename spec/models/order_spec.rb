@@ -1,5 +1,7 @@
 describe Order, type: :model do
   before do
+    stub_stripe_client
+
     @order = build(:order)
     allow(NewOrderNotificationJob).to receive(:perform_async)
   end

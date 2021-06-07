@@ -1,0 +1,37 @@
+<%= form_with(model: order_notification) do |form| %>
+  <% if order_notification.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(order_notification.errors.count, "error") %> prohibited this order_notification from being saved:</h2>
+
+      <ul>
+        <% order_notification.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :message %>
+    <%= form.text_area :message %>
+  </div>
+
+  <div class="field">
+    <%= form.label :account_id %>
+    <%= form.text_field :account_id %>
+  </div>
+
+  <div class="field">
+    <%= form.label :message_type %>
+    <%= form.text_field :message_type %>
+  </div>
+
+  <div class="field">
+    <%= form.label :order_id %>
+    <%= form.text_field :order_id %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>

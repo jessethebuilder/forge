@@ -76,6 +76,11 @@ class OrdersController < ApplicationController
         :card_expiration,
         :card_ccv,
         :stripe_token
+      ],
+      customer: [
+        :name,
+        :email,
+        :phone
       ]
     )
 
@@ -86,6 +91,9 @@ class OrdersController < ApplicationController
 
     p[:transactions_attributes] = p[:transactions] if p[:transactions]
     p.delete(:transactions)
+
+    p[:customer_attributes] = p[:customer] if p[:customer]
+    p.delete(:customer)
 
     return p
   end

@@ -1,0 +1,2 @@
+module OrderNotificationsHelper
+end

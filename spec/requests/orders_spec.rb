@@ -1,5 +1,7 @@
 describe 'Order Requests', type: :request, api: true do
   before do
+    stub_stripe_client
+
     @account = create(:account)
     @credential = create(:credential, account: @account)
     @menu = create(:menu, account: @account)

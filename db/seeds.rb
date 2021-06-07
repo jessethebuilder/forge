@@ -1,9 +1,14 @@
 Order.destroy_all
 Account.destroy_all
 
-a = Account.create!(sms: '3606709312', email: 'jesse@anysoft.us')
+a = Account.create!(
+  sms: '3606709312',
+  email: 'jesse@anysoft.us',
+  stripe_key: ENV.fetch('STRIPE_KEY'),
+  stripe_secret: ENV.fetch('STRIPE_SECRET')
+)
 c = Credential.create!(account: a)
-c.update(token: 'test_token')
+c.update(token: '<auth_token>')
 
 3.times do
   m = Menu.create!(account: a, name: Faker::Games::Fallout.location, description: Faker::Lorem.paragraph,

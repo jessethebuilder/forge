@@ -1,18 +1,22 @@
-class Transaction < ApplicationRecord
-  attr_accessor :card_number, :card_expiration, :card_ccv, :stripe_token
+class Transaction < ApplicationRecord # Transaction should be an interface, with inheritors like StripeTransaction
+  attr_accessor :card_number, :card_expiration, :card_ccv, # TODO pull this line
+                :stripe_token
 
   belongs_to :order
 
   validates :amount, presence: true, numericality: true
 
-  scope :refunds, -> { where('amount < 0') }
-  scope :charges, -> { where('amount > 0') }
+  validate :validate_transaction
 
-  def charge!
+  delegate :account, to: :order
+  delegate :customer, to: :order
+
+  def charge! # TODO spec
+    charge_stripe!
   end
 
   def refund!
-
+    refund_stripe!
   end
 
   def charge?
@@ -27,16 +31,20 @@ class Transaction < ApplicationRecord
     charge? ? 'charge' : 'refund'
   end
 
-  validate :validate_transaction
-
   before_validation :set_full_amount_if_first_transaction
-  # _validation :execute_transaction
-  before_create :execute_transaction
+  before_create :execute!
+
+  scope :refunds, -> { where('amount < 0') }
+  scope :charges, -> { where('amount > 0') }
 
   private
 
-  def execute_transaction
-    send("#{transaction_type}!")
+  def execute! # spec
+    begin
+      self.stripe_id = send("#{transaction_type}!")
+    rescue Stripe::InvalidRequestError => invalid_request
+      self.errors.add(self.transaction_type, invalid_request.message)
+    end
   end
 
   def set_full_amount_if_first_transaction
@@ -91,7 +99,7 @@ class Transaction < ApplicationRecord
   def validate_payment_method
     return unless self.new_record?
 
-    if (card_number.nil? && card_expiration.nil? && card_ccv.nil?) && stripe_token.nil?  
+    if (card_number.nil? && card_expiration.nil? && card_ccv.nil?) && stripe_token.nil?
       errors.add(:charge, 'requires a valid payment method')
     end
   end
@@ -105,5 +113,37 @@ class Transaction < ApplicationRecord
   def validate_amount_matches_order_total
     # Charge must be the same amount as the Order total.
     errors.add(:amount, 'must equal Order total') unless amount == order.total
+  end
+
+  def charge_stripe!
+    set_stripe_customer! if customer.present?
+
+    stripe_client.create_charge(
+      stripe_token,
+      self.amount,
+      customer: customer&.stripe_id,
+      description: "Forge Transaction: #{self.id}"
+    )
+  end
+
+  def set_stripe_customer!
+    return customer.stripe_id if customer.stripe_id.present?
+
+    customer_id = stripe_client.create_customer(
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      source: self.stripe_token
+    ).id
+
+    customer.update(stripe_id: customer_id)
+  end
+
+  def refund_stripe! # spec
+    stripe_client.create_refund(amount, order.charge)
+  end
+
+  def stripe_client
+    @stripe_client ||= StripeClient.new(account.stripe_secret)
   end
 end
