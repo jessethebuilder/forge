@@ -1,7 +1,8 @@
 describe Order, type: :model do
   before do
+    stub_stripe_client
+
     @order = build(:order)
-    allow(NewOrderNotificationJob).to receive(:perform_async)
   end
 
   describe 'Validations' do
@@ -13,28 +14,29 @@ describe Order, type: :model do
     it{ should belong_to(:menu).required(false) }
     it{ should belong_to(:customer).required(false) }
 
+    it{ should have_many(:notifications) }
+
     it{ should have_many :order_items }
 
+    it 'should destroy OrderItems on destroy' do
+      @order.save
+      @order_item = create(:order_item, order: @order)
+      expect{ @order.destroy }.to change{ OrderItem.exists?(@order_item.id) }.to(false)
+    end
+
     it{ should have_many :transactions }
+
+    it 'should destroy OrderItems on destroy' do
+      @transaction = create(:charge)
+      order = @transaction.order
+      expect{ order.destroy }.to change{ Transaction.exists?(@transaction.id) }.to(false)
+    end
   end # Associations
-
-  describe 'Attributes' do
-    specify ':active defaults to true' do
-      @order.active.should == true
-    end
-
-    specify ':seen defaults to false' do
-      @order.seen.should == false
-    end
-  end # Attributes
-
-  describe 'Behaviors' do
-  end # Behaviors
 
   describe 'Methods' do
     describe 'Money Methods' do
       before do
-        @product = create(:product, price: 15.0)
+        @product = create(:product, price: 1500)
         @order.order_items << [
           build(:order_item, product: @product),
           build(:order_item, product: @product)
@@ -43,36 +45,90 @@ describe Order, type: :model do
 
       describe '#subtotal' do
         it 'should return the total of all order_items' do
-          @order.subtotal.should == 30
+          @order.subtotal.should == 3000
         end
       end
 
       describe '#total' do
         it 'should return sub_total + tax + tip' do
-          @order.tax = 10
-          @order.tip = 10
-          @order.total.should == 50
+          @order.tax = 100
+          @order.tip = 100
+          @order.total.should == 3200
         end
       end
 
       describe '#refund_total' do
         it 'should return the total of all refunds' do
           create(:charge, order: @order) # The first Transaction, must be a Charge!
-          create(:refund, order: @order, amount: -10)
-          create(:refund, order: @order, amount: -10)
-          @order.refund_total.should == -20
+          create(:refund, order: @order, amount: -50)
+          create(:refund, order: @order, amount: -50)
+          @order.refund_total.should == -100
         end
       end
-    end
+    end # Money Methods
 
-    describe '#complete?' do
+    describe '#funded?' do
       it 'should return true if a positive transation exists matching :total' do
         @order.save!
         create(:order_item, order: @order)
         expect{ create(:transaction, order: @order, amount: @order.total) }
-              .to change{ @order.reload.complete? }.from(false).to(true)
+              .to change{ @order.reload.funded? }.from(false).to(true)
       end
     end
+
+    describe '#charge?' do
+
+    end
+
+    describe '#refund?' do
+
+    end
+
+    describe '#seen?' do
+      it 'should return true of there is a :seen_at' do
+        @order.seen_at = Time.now
+        @order.seen?.should == true
+      end
+
+      it 'should return false if :seen_at is nil (default)' do
+        @order.seen?.should == false
+      end
+    end # seen?
+
+    describe '#see' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+      end
+
+      it 'should set seen_at to Time.now' do
+        expect{ @order.see }.to change{ @order.seen_at }.from(nil).to(@time)
+      end
+    end # see
+
+    describe '#unsee' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+        @order.update(seen_at: @time)
+      end
+
+      it 'should set seen_at to nil' do
+        expect{ @order.unsee }.to change{ @order.seen_at }.from(@time).to(nil)
+      end
+    end # unsee
+
+    describe '#see=' do
+      before do
+        @time = Time.now
+        allow(Time).to receive(:now).and_return(@time)
+      end
+
+      it 'should set seen_at to nil if false' do
+        @order.update(seen_at: @time)
+        expect{ @order.see = false }.to change{ @order.seen_at }.from(@time).to(nil)
+      end
+    end # see=
   end # Methods
 
   describe 'Class Methods' do

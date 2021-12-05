@@ -2,33 +2,32 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# This file is the source Rails uses to define your schema when running `rails
-# db:schema:load`. When creating a new database, `rails db:schema:load` tends to
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
 # be faster and is potentially less error prone than running all of your
 # migrations from scratch. Old migrations may fail to apply correctly if those
 # migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_04_17_092315) do
+ActiveRecord::Schema.define(version: 2021_06_06_112617) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
   create_table "accounts", force: :cascade do |t|
     t.boolean "active", default: true
-    t.jsonb "data", default: {}
     t.string "sms"
     t.string "email"
-    t.integer "sms_after_unseen", default: 0
-    t.integer "email_after_unseen", default: 0
+    t.string "name"
+    t.string "stripe_key"
+    t.string "stripe_secret"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
   create_table "credentials", force: :cascade do |t|
     t.string "token"
-    t.string "username"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -36,11 +35,11 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   end
 
   create_table "customers", force: :cascade do |t|
-    t.string "email"
     t.string "name"
+    t.string "email"
     t.string "phone"
-    t.string "reference"
     t.jsonb "data", default: {}
+    t.string "stripe_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -51,9 +50,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "name"
     t.text "description"
     t.integer "order"
-    t.string "reference"
     t.jsonb "data", default: {}
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -65,9 +64,9 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   create_table "menus", force: :cascade do |t|
     t.string "name"
     t.text "description"
-    t.string "reference"
     t.jsonb "data", default: {}
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.string "sms"
     t.string "email"
     t.datetime "created_at", precision: 6, null: false
@@ -76,8 +75,18 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.index ["account_id"], name: "index_menus_on_account_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.text "message"
+    t.string "subject"
+    t.string "notification_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "order_id"
+    t.index ["order_id"], name: "index_notifications_on_order_id"
+  end
+
   create_table "order_items", force: :cascade do |t|
-    t.float "amount"
+    t.integer "amount"
     t.jsonb "data", default: {}
     t.string "note"
     t.datetime "created_at", precision: 6, null: false
@@ -90,12 +99,11 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
 
   create_table "orders", force: :cascade do |t|
     t.jsonb "data", default: {}
-    t.string "reference"
     t.string "note"
-    t.float "tip", default: 0.0
-    t.float "tax", default: 0.0
-    t.boolean "active", default: true
-    t.boolean "seen", default: false
+    t.integer "tip", default: 0
+    t.integer "tax", default: 0
+    t.datetime "seen_at"
+    t.datetime "delivered_at"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -110,10 +118,10 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
     t.string "name"
     t.text "description"
     t.integer "order"
-    t.float "price"
+    t.integer "price"
     t.jsonb "data", default: {}
-    t.string "reference"
     t.boolean "active", default: true
+    t.boolean "archived", default: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "account_id"
@@ -125,8 +133,8 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   end
 
   create_table "transactions", force: :cascade do |t|
-    t.float "amount"
-    t.string "reference"
+    t.integer "amount"
+    t.string "stripe_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.bigint "order_id"
@@ -137,8 +145,10 @@ ActiveRecord::Schema.define(version: 2020_04_17_092315) do
   add_foreign_key "customers", "accounts"
   add_foreign_key "groups", "accounts"
   add_foreign_key "menus", "accounts"
+  add_foreign_key "notifications", "orders"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
   add_foreign_key "orders", "accounts"
   add_foreign_key "products", "accounts"
+  add_foreign_key "transactions", "orders"
 end

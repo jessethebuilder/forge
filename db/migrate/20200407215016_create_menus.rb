@@ -3,9 +3,9 @@ class CreateMenus < ActiveRecord::Migration[6.0]
     create_table :menus do |t|
       t.string :name
       t.text :description
-      t.string :reference
       t.jsonb :data, default: {}
       t.boolean :active, default: true
+      t.boolean :archived, default: false
       t.string :sms
       t.string :email
 

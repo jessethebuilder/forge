@@ -1,4 +1,6 @@
 class Menu < ApplicationRecord
+  include StatusScoped
+
   belongs_to :account
 
   has_many :orders
@@ -7,6 +9,5 @@ class Menu < ApplicationRecord
 
   validates :name, presence: true
 
-  scope :active, -> { where(active: true) }
-  scope :inactive, -> { where(active: false) }
+  private
 end

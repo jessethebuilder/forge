@@ -1,8 +1,7 @@
 class Credential < ApplicationRecord
   belongs_to :account
 
-  validates :username, presence: true, uniqueness: true
-  validates :token, presence: true
+  validates :token, presence: true, uniqueness: true
 
   before_validation :generate_token, on: [:create]
 

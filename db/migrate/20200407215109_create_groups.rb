@@ -4,9 +4,9 @@ class CreateGroups < ActiveRecord::Migration[6.0]
       t.string :name
       t.text :description
       t.integer :order
-      t.string :reference
       t.jsonb :data, default: {}
       t.boolean :active, default: true
+      t.boolean :archived, default: false
 
       t.timestamps
     end

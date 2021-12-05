@@ -5,7 +5,7 @@ json.extract!(
   :name,
   :phone,
   :data,
-  :reference,
+  :stripe_id,
   :created_at,
   :updated_at
 )

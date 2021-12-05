@@ -3,15 +3,15 @@ describe Credential, type: :model do
     @credential = build(:credential)
   end
 
-  describe 'Validations' do
-    it{ should validate_presence_of :username }
-    it{ should validate_uniqueness_of :username }
+  it 'should be valid' do
+    @credential.valid?.should == true
+  end
 
-    specify{ association_must_exist(@credential, :account) }
+  describe 'Validations' do
   end # Validations
 
   describe 'Associations' do
-    it{ should belong_to :account }
+    it{ should belong_to(:account).required }
   end # Associations
 
   describe 'Attributes' do

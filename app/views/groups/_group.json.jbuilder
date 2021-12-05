@@ -4,12 +4,13 @@ json.extract!(
   :name,
   :description,
   :order,
+  :menu_id,
+  :menu_name,
   :data,
-  :reference,
   :active,
+  :archived,
   :created_at,
-  :updated_at,
-  :menu_id
+  :updated_at
 )
 
 if @deep

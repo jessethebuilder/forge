@@ -4,8 +4,8 @@ json.extract!(
   :name,
   :description,
   :data,
-  :reference,
   :active,
+  :archived,
   :created_at,
   :updated_at
 )

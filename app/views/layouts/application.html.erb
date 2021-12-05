@@ -1,10 +1,9 @@
-<% raise Error, "No Web View!" %>
+<!DOCTYPE html>
 
-<!-- <!DOCTYPE html>
 <html>
   <head>
     <title>The Forge Web</title>
-    <%= favicon %>
+    <%#= favicon %>
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +13,8 @@
     <%= stylesheet_pack_tag 'application' %>
   </head>
   <body>
-    <%= render partial: 'layouts/partials/nav' %>
-    <%= render partial: 'layouts/partials/flash' %>
+    <%#= render partial: 'layouts/partials/nav' %>
+    <%#= render partial: 'layouts/partials/flash' %>
     <%= yield %>
     <script>
       <% if current_account %>
@@ -26,4 +25,4 @@
     </script>
     <% console if Rails.env.development? %>
   </body>
-</html> -->
+</html>

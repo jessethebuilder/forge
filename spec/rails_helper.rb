@@ -18,6 +18,7 @@ RSpec.configure do |config|
   config.include(ModelSpecHelper, type: :model)
   config.include(RequestSpecHelper, type: :request)
   config.include(ControllerSpecHelper, type: :controller)
+  config.include(StripeHelper)
 
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 

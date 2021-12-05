@@ -1,11 +1,28 @@
 FactoryBot.define do
+  trait :active do
+    active { true }
+  end
+
+  trait :archived do
+    archived { true }
+  end
+
+  trait :inactive do
+    active { false }
+  end
+
   factory :account do
     sequence(:email){ |n| "test_#{n}@test.com" }
+    name { Faker::Company.name }
+
+    trait :with_stripe_credentials do
+      stripe_secret { 'stripe_secret' }
+      stripe_key { 'stripe_key' }
+    end
   end
 
   factory :credential do
     account
-    sequence(:username){ |n| "user#{n}" }
     sequence(:token){ |n| "user_token_#{n}" }
   end
 
@@ -25,7 +42,7 @@ FactoryBot.define do
 
   factory :product do
     name { Faker::Lorem.word }
-    price { Random.rand(0.01..1000.0).round(2) }
+    price { Random.rand(50..100000) }
     account
   end
 
@@ -52,15 +69,21 @@ FactoryBot.define do
   end
 
   factory :transaction do
-    order
-    amount{ Random.rand(0.01..1000) }
+    order { build(:order, :with_items) }
+    amount{ Random.rand(50..100000) }
+    stripe_token { 'some_token' }
 
     factory :charge do
       amount { order.total }
     end
 
     factory :refund do
-      amount { (Random.rand(0.01..order.total) - order.total).round(2) }
+      amount { -order.total }
     end
+  end
+
+  factory :notification do
+    order
+    notification_type { Notification::NOTIFICATION_TYPES.sample }
   end
 end

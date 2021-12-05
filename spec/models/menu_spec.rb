@@ -28,6 +28,17 @@ describe Menu, type: :model do
   end # Attributes
 
   describe 'Behaviors' do
+    describe 'Deleting or Archiving a Group' do
+      before do
+        @menu.save!
+      end
+
+      it 'should delete if there are no associated OrderItems' do
+        expect{ @menu.destroy }
+              .to change{ Menu.exists?(@menu.id) }
+              .from(true).to(false)
+      end
+    end # Deleting or Archiving an Order
   end # Behaviors
 
   describe 'Methods' do

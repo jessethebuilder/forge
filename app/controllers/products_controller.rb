@@ -11,21 +11,11 @@ class ProductsController < ApplicationController
                        .includes(:group)
   end
 
-  def all_inactive
-    # Includes Products in inactive Menus and Groups.
-    @products = Product.inactive.to_a
-    @products += Menu.inactive.map(&:products).flatten
-    @products += Group.inactive.map(&:products).flatten
-
-    render :index
-  end
-
   def show
   end
 
   def create
-    @product = Product.new(product_params)
-    @product.account = current_account
+    @product = Product.new(product_params.merge(account: current_account))
 
     if @product.save
       render :show, status: :created, location: @product
@@ -56,7 +46,7 @@ class ProductsController < ApplicationController
 
   def product_params
     params.require(:product).permit(
-      :name, :description, :price, :data, :reference, :active,
+      :name, :description, :price, :data, :active,
       :order, :menu_id, :group_id)
   end
 
