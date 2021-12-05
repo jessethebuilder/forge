@@ -17,9 +17,9 @@ ActiveRecord::Schema.define(version: 2021_06_06_112617) do
 
   create_table "accounts", force: :cascade do |t|
     t.boolean "active", default: true
-    t.jsonb "data", default: {}
     t.string "sms"
     t.string "email"
+    t.string "name"
     t.string "stripe_key"
     t.string "stripe_secret"
     t.datetime "created_at", precision: 6, null: false
@@ -75,6 +75,16 @@ ActiveRecord::Schema.define(version: 2021_06_06_112617) do
     t.index ["account_id"], name: "index_menus_on_account_id"
   end
 
+  create_table "notifications", force: :cascade do |t|
+    t.text "message"
+    t.string "subject"
+    t.string "notification_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.bigint "order_id"
+    t.index ["order_id"], name: "index_notifications_on_order_id"
+  end
+
   create_table "order_items", force: :cascade do |t|
     t.integer "amount"
     t.jsonb "data", default: {}
@@ -85,15 +95,6 @@ ActiveRecord::Schema.define(version: 2021_06_06_112617) do
     t.bigint "product_id"
     t.index ["order_id"], name: "index_order_items_on_order_id"
     t.index ["product_id"], name: "index_order_items_on_product_id"
-  end
-
-  create_table "order_notifications", force: :cascade do |t|
-    t.text "message"
-    t.string "notification_type"
-    t.bigint "order_id", null: false
-    t.datetime "created_at", precision: 6, null: false
-    t.datetime "updated_at", precision: 6, null: false
-    t.index ["order_id"], name: "index_order_notifications_on_order_id"
   end
 
   create_table "orders", force: :cascade do |t|
@@ -144,9 +145,9 @@ ActiveRecord::Schema.define(version: 2021_06_06_112617) do
   add_foreign_key "customers", "accounts"
   add_foreign_key "groups", "accounts"
   add_foreign_key "menus", "accounts"
+  add_foreign_key "notifications", "orders"
   add_foreign_key "order_items", "orders"
   add_foreign_key "order_items", "products"
-  add_foreign_key "order_notifications", "orders"
   add_foreign_key "orders", "accounts"
   add_foreign_key "products", "accounts"
   add_foreign_key "transactions", "orders"

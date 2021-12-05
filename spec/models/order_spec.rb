@@ -3,7 +3,6 @@ describe Order, type: :model do
     stub_stripe_client
 
     @order = build(:order)
-    allow(NewOrderNotificationJob).to receive(:perform_async)
   end
 
   describe 'Validations' do
@@ -14,6 +13,8 @@ describe Order, type: :model do
     it{ should belong_to :account }
     it{ should belong_to(:menu).required(false) }
     it{ should belong_to(:customer).required(false) }
+
+    it{ should have_many(:notifications) }
 
     it{ should have_many :order_items }
 

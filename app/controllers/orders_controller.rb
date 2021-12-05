@@ -21,7 +21,9 @@ class OrdersController < ApplicationController
 
     respond_to do |format|
       if @order.save
-        NewOrderNotificationJob.perform_async(@order.id) if params[:notify] == 'true'
+        if params[:notify] == 'true'
+          Notification.create(order: @order, notification_type: 'new_order')
+        end
 
         format.json { render :show, status: :created, location: @order }
       else

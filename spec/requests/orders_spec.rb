@@ -32,7 +32,7 @@ describe 'Order Requests', type: :request, api: true do
           new_order = create(:order, account: @account)
           @order.update(created_at: Time.parse('2020-12-31'))
 
-          get URI.encode("/orders.json?q[created_after]=2021-01-01"), headers: test_api_headers
+          get "/orders.json?q[created_after]=2021-01-01", headers: test_api_headers
 
           response_data = JSON.parse(response.body)
           response_data.count.should == 1
@@ -45,7 +45,7 @@ describe 'Order Requests', type: :request, api: true do
           new_order = create(:order, account: @account)
           @order.update(created_at: Time.parse('2020-12-30'))
 
-          get URI.encode("/orders.json?q[created_before]=2021-01-01"), headers: test_api_headers
+          get "/orders.json?q[created_before]=2021-01-01", headers: test_api_headers
 
           response_data = JSON.parse(response.body)
           response_data.count.should == 1
@@ -62,7 +62,7 @@ describe 'Order Requests', type: :request, api: true do
           old_order.update(created_at: date - 1.day)
           @order.update(created_at: date)
 
-          get URI.encode("/orders.json?q[created_on]=2021-01-01"), headers: test_api_headers
+          get "/orders.json?q[created_on]=2021-01-01", headers: test_api_headers
 
           response_data = JSON.parse(response.body)
           response_data.count.should == 1
@@ -75,10 +75,12 @@ describe 'Order Requests', type: :request, api: true do
       it 'should return the number of records specified by the "per_page" param' do
         2.times{ create(:order, account:@account) }
 
-        get URI.encode("/orders.json?page=1&per_page=2"), headers: test_api_headers
+        @account.orders.count.should == 3
+
+        get "/orders.json?page=1&per_page=2", headers: test_api_headers
         JSON.parse(response.body).count.should == 2
 
-        get URI.encode("/orders.json?page=2&per_page=2"), headers: test_api_headers
+        get "/orders.json?page=2&per_page=2", headers: test_api_headers
         JSON.parse(response.body).count.should == 1
       end
     end # Paginating
@@ -184,28 +186,26 @@ describe 'Order Requests', type: :request, api: true do
       Order.last.account.should == @account
     end
 
-    it 'should start Notification Job IF notify is passed as a param' do
-      allow(NewOrderNotificationJob).to receive(:perform_async)
-      post '/orders.json', params: {order: {tip: 10}, notify: true}, headers: test_api_headers
-      expect(NewOrderNotificationJob)
-            .to have_received(:perform_async)
-            .with(Order.order(created_at: :desc).first.id)
+    it 'should create a "new_order" Notification IF notify is passed as a param' do
+      expect{
+        post '/orders.json', params: {order: {tip: 10}, notify: true}, headers: test_api_headers
+      }.to change{ Notification.count }.by(1)
+
+      notification = Notification.last
+      notification.order.should ==  Order.last
+      notification.notification_type.should == 'new_order'
     end
 
-    it 'should NOT start Notification Job IF notify is NOT passed as a param' do
-      allow(NewOrderNotificationJob).to receive(:perform_async)
-      post '/orders.json', params: {order: {tip: 10}}, headers: test_api_headers
-      expect(NewOrderNotificationJob)
-            .not_to have_received(:perform_async)
-            .with(Order.order(created_at: :desc).first.id)
+    it 'should NOT create a "new_order" Notification IF notify is NOT passed as a param' do
+      expect{
+        post '/orders.json', params: {order: {tip: 10}}, headers: test_api_headers
+      }.not_to change{ Notification.count }
     end
 
-    it 'should NOT start Notification Job IF notify param is false' do
-      allow(NewOrderNotificationJob).to receive(:perform_async)
-      post '/orders.json', params: {order: {tip: 10}, notify: false}, headers: test_api_headers
-      expect(NewOrderNotificationJob)
-            .not_to have_received(:perform_async)
-            .with(Order.order(created_at: :desc).first.id)
+    it 'should NOT create a "new_order" Notification IF notify param is false' do
+      expect{
+        post '/orders.json', params: {order: {tip: 10}, notify: false}, headers: test_api_headers
+      }.not_to change{ Notification.count }
     end
 
     describe 'see' do

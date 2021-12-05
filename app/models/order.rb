@@ -11,6 +11,8 @@ class Order < ApplicationRecord
   has_many :transactions, dependent: :destroy
   accepts_nested_attributes_for :transactions
 
+  has_many :notifications
+
   def charge
     transactions.charges.first
   end

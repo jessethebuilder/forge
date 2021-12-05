@@ -5,7 +5,8 @@ a = Account.create!(
   sms: '3606709312',
   email: 'jesse@anysoft.us',
   stripe_key: ENV.fetch('STRIPE_KEY'),
-  stripe_secret: ENV.fetch('STRIPE_SECRET')
+  stripe_secret: ENV.fetch('STRIPE_SECRET'),
+  name: 'Jeffco'
 )
 c = Credential.create!(account: a)
 c.update(token: '<auth_token>')

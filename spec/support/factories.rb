@@ -13,6 +13,7 @@ FactoryBot.define do
 
   factory :account do
     sequence(:email){ |n| "test_#{n}@test.com" }
+    name { Faker::Company.name }
 
     trait :with_stripe_credentials do
       stripe_secret { 'stripe_secret' }
@@ -77,12 +78,12 @@ FactoryBot.define do
     end
 
     factory :refund do
-      amount { (Random.rand(50..order.total) - order.total) }
+      amount { -order.total }
     end
   end
 
-  factory :order_notification do
+  factory :notification do
     order
-    notification_type { OrderNotification::ORDER_NOTIFICATION_TYPES.sample }
+    notification_type { Notification::NOTIFICATION_TYPES.sample }
   end
 end

@@ -7,4 +7,5 @@ class Account < ApplicationRecord
   has_many :credentials, dependent: :destroy
 
   validates :email, presence: true, uniqueness: true
+  validates :name, presence: true
 end

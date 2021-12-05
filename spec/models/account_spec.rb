@@ -6,6 +6,7 @@ describe Account, type: :model do
   describe 'Validations' do
     it{ should validate_presence_of :email }
     it{ should validate_uniqueness_of :email }
+    it{ should validate_presence_of :name }
   end # Validations
 
   describe 'Associations' do
@@ -18,9 +19,6 @@ describe Account, type: :model do
   end # Associations
 
   describe 'Attributes' do
-    specify ':data defaults to and empty Hash' do
-      @account.data.should == {}
-    end
   end # Attributes
 
   describe 'Behaviors' do

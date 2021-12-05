@@ -272,9 +272,10 @@ describe 'Product Requests', type: :request, api: true do
       it 'should set @product.archived to true' do
         pending 'Works IRL and in model spec, but not in this spec'
 
-        expect{ delete "/products/#{@product.id}.json", headers: test_api_headers }
-              .to change{ @product.reload.archived }.from(false).to(true)
-
+        expect{
+          delete "/products/#{@product.id}.json", headers: test_api_headers
+        }.to change{ @product.reload.archived }.from(false).to(true)
+byebug
       end
     end
   end # Destroy
